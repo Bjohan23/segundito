@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="${'Búsqueda: ' + termino + ' - Segundito'}">Búsqueda - Segundito</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="mb-6">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+            Resultados para "<span th:text="${termino}">término</span>"
+        </h1>
+        <p class="text-gray-600">
+            <span th:text="${totalElementos}">0</span> productos encontrados
+        </p>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-6">
+        <!-- Filtros laterales (visible en pantallas md y superiores) -->
+        <div class="hidden md:block w-64 flex-shrink-0">
+            <form th:action="@{/productos/buscar}" method="get" class="bg-white rounded-lg shadow-md p-4 mb-6">
+                <input type="hidden" name="termino" th:value="${termino}">
+
+                <h2 class="font-semibold text-gray-800 mb-4">Filtros</h2>
+
+                <!-- Categorías -->
+                <div class="mb-4">
+                    <h3 class="font-medium text-gray-700 mb-2">Categorías</h3>
+                    <select name="categoriaId" id="categoriaId" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg">
+                        <option value="">Todas las categorías</option>
+                        <option th:each="categoria : ${categorias}"
+                                th:value="${categoria.id}"
+                                th:text="${categoria.nombre}"
+                                th:selected="${param.categoriaId != null && param.categoriaId[0] == categoria.id.toString()}">
+                            Categoría
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Precio -->
+                <div class="mb-4">
+                    <h3 class="font-medium text-gray-700 mb-2">Rango de precio</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label for="precioMin" class="sr-only">Precio mínimo</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 text-sm">€</span>
+                                </div>
+                                <input type="number" id="precioMin" name="precioMin" th:value="${param.precioMin}" min="0" step="1"
+                                       class="w-full pl-8 pr-2 py-2 text-sm border border-gray-300 rounded-lg"
+                                       placeholder="Min">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="precioMax" class="sr-only">Precio máximo</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 text-sm">€</span>
+                                </div>
+                                <input type="number" id="precioMax" name="precioMax" th:value="${param.precioMax}" min="0" step="1"
+                                       class="w-full pl-8 pr-2 py-2 text-sm border border-gray-300 rounded-lg"
+                                       placeholder="Max">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estado del producto -->
+                <div class="mb-4">
+                    <h3 class="font-medium text-gray-700 mb-2">Estado</h3>
+                    <div class="space-y-2">
+                        <div th:each="estado : ${estados}" class="flex items-center">
+                            <input type="checkbox" th:id="${'estado-' + estado.id}" name="estados" th:value="${estado.id}"
+                                   th:checked="${#arrays.contains(param.estados, estado.id.toString())}"
+                                   class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                            <label th:for="${'estado-' + estado.id}" class="ml-2 text-sm text-gray-700" th:text="${estado.nombre}">
+                                Estado
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ubicación -->
+                <div class="mb-4">
+                    <h3 class="font-medium text-gray-700 mb-2">Ubicación</h3>
+                    <select name="provincia" id="provincia" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2">
+                        <option value="">Todas las provincias</option>
+                        <option th:each="provincia : ${provincias}"
+                                th:value="${provincia}"
+                                th:text="${provincia}"
+                                th:selected="${param.provincia != null && param.provincia[0] == provincia}">
+                            Provincia
+                        </option>
+                    </select>
+
+                    <select name="ciudad" id="ciudad" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg">
+                        <option value="">Todas las ciudades</option>
+                        <option th:each="ciudad : ${ciudades}"
+                                th:value="${ciudad}"
+                                th:text="${ciudad}"
+                                th:selected="${param.ciudad != null && param.ciudad[0] == ciudad}">
+                            Ciudad
+                        </option>
+                    </select>
+                </div>
+
+                <div class="border-t pt-4">
+                    <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white py-2 px-4 rounded-lg text-sm">
+                        Aplicar filtros
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="flex-grow">
+            <!-- Botón para mostrar filtros (solo en móvil) -->
+            <div class="md:hidden mb-4">
+                <button type="button" onclick="toggleMobileFilters()"
+                        class="w-full bg-white shadow-sm border border-gray-300 rounded-lg py-2 px-4 text-gray-700 flex items-center justify-center">
+                    <i class="fas fa-filter mr-2"></i> Filtros
+                </button>
+            </div>
+
+            <!-- Filtros móviles (ocultos por defecto) -->
+            <div id="mobile-filters" class="md:hidden bg-white rounded-lg shadow-md p-4 mb-4 hidden">
+                <form th:action="@{/productos/buscar}" method="get">
+                    <input type="hidden" name="termino" th:value="${termino}">
+
+                    <h2 class="font-semibold text-gray-800 mb-4">Filtros</h2>
+
+                    <!-- Categorías -->
+                    <div class="mb-4">
+                        <h3 class="font-medium text-gray-700 mb-2">Categorías</h3>
+                        <select name="categoriaId" id="categoriaIdMobile" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg">
+                            <option value="">Todas las categorías</option>
+                            <option th:each="categoria : ${categorias}"
+                                    th:value="${categoria.id}"
+                                    th:text="${categoria.nombre}"
+                                    th:selected="${param.categoriaId != null && param.categoriaId[0] == categoria.id.toString()}">
+                                Categoría
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Precio -->
+                    <div class="mb-4">
+                        <h3 class="font-medium text-gray-700 mb-2">Rango de precio</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label for="precioMinMobile" class="sr-only">Precio mínimo</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 text-sm">€</span>
+                                    </div>
+                                    <input type="number" id="precioMinMobile" name="precioMin" th:value="${param.precioMin}" min="0" step="1"
+                                           class="w-full pl-8 pr-2 py-2 text-sm border border-gray-300 rounded-lg"
+                                           placeholder="Min">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="precioMaxMobile" class="sr-only">Precio máximo</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 text-sm">€</span>
+                                    </div>
+                                    <input type="number" id="precioMaxMobile" name="precioMax" th:value="${param.precioMax}" min="0" step="1"
+                                           class="w-full pl-8 pr-2 py-2 text-sm border border-gray-300 rounded-lg"
+                                           placeholder="Max">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="mb-4">
+                        <h3 class="font-medium text-gray-700 mb-2">Estado</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <div th:each="estado : ${estados}" class="flex items-center">
+                                <input type="checkbox" th:id="${'estado-mobile-' + estado.id}" name="estados" th:value="${estado.id}"
+                                       th:checked="${#arrays.contains(param.estados, estado.id.toString())}"
+                                       class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                <label th:for="${'estado-mobile-' + estado.id}" class="ml-2 text-sm text-gray-700" th:text="${estado.nombre}">
+                                    Estado
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <button type="submit" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white py-2 px-4 rounded-lg text-sm">
+                            Aplicar
+                        </button>
+                        <button type="button" onclick="toggleMobileFilters()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 text-sm">
+                            Cerrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Controles de ordenación y vista -->
+            <div class="flex flex-wrap justify-between items-center mb-6">
+                <div class="mb-3 md:mb-0">
+                    <p class="text-gray-600">
+                        <span th:text="${totalElementos}">0</span> productos encontrados
+                    </p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <label for="ordenar" class="text-sm text-gray-700">Ordenar por:</label>
+                    <select id="ordenar" name="sort" class="text-sm border border-gray-300 rounded-lg p-2"
+                            onchange="cambiarOrden(this.value)">
+                        <option value="fechaPublicacion,desc" th:selected="${param.sort == null || param.sort[0] == 'fechaPublicacion,desc'}">Más recientes</option>
+                        <option value="fechaPublicacion,asc" th:selected="${param.sort != null && param.sort[0] == 'fechaPublicacion,asc'}">Más antiguos</option>
+                        <option value="precio,asc" th:selected="${param.sort != null && param.sort[0] == 'precio,asc'}">Precio: de menor a mayor</option>
+                        <option value="precio,desc" th:selected="${param.sort != null && param.sort[0] == 'precio,desc'}">Precio: de mayor a menor</option>
+                        <option value="visitas,desc" th:selected="${param.sort != null && param.sort[0] == 'visitas,desc'}">Más vistos</option>
+                    </select>
+
+                    <div class="flex border rounded-lg overflow-hidden">
+                        <button type="button" id="grid-view" onclick="cambiarVista('grid')"
+                                class="px-3 py-2 bg-gray-100 border-r border-gray-300 text-gray-700 hover:bg-gray-200 active">
+                            <i class="fas fa-th-large"></i>
+                        </button>
+                        <button type="button" id="list-view" onclick="cambiarVista('list')"
+                                class="px-3 py-2 bg-white text-gray-700 hover:bg-gray-100">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vista de cuadrícula (predeterminada) -->
+            <div id="grid-view-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div th:each="producto : ${productos}" class="product-card">
+                    <div th:replace="~{fragments/product-card :: product-card(${producto})}"></div>
+                </div>
+            </div>
+
+            <!-- Vista de lista (oculta por defecto) -->
+            <div id="list-view-container" class="hidden space-y-4">
+                <div th:each="producto : ${productos}" class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="flex flex-col md:flex-row">
+                        <!-- Imagen -->
+                        <div class="md:w-48 h-48 flex-shrink-0">
+                            <a th:href="@{'/productos/' + ${producto.id}}">
+                                <img th:if="${producto.imagenPrincipal}" th:src="@{'/uploads/' + ${producto.imagenPrincipal}}"
+                                     alt="Imagen del producto" class="w-full h-full object-cover">
+                                <div th:unless="${producto.imagenPrincipal}" class="w-full h-full flex items-center justify-center bg-gray-200">
+                                    <i class="fas fa-image text-4xl text-gray-400"></i>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- Información -->
+                        <div class="p-4 flex-grow">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <!-- Categoría -->
+                                    <a th:href="@{'/categorias/' + ${producto.categoriaId}}" class="text-xs text-primary-600 font-semibold uppercase tracking-wider mb-1 block">
+                                        <i class="fas fa-tag mr-1"></i>
+                                        <span th:text="${producto.categoriaNombre}">Categoría</span>
+                                    </a>
+
+                                    <!-- Título -->
+                                    <h3 class="font-semibold text-gray-800 mb-2">
+                                        <a th:href="@{'/productos/' + ${producto.id}}" th:text="${producto.titulo}">Título del producto</a>
+                                    </h3>
+
+                                    <!-- Descripción corta -->
+                                    <p class="text-gray-600 text-sm mb-3 line-clamp-2" th:text="${producto.descripcion}">
+                                        Descripción del producto...
+                                    </p>
+                                </div>
+
+                                <!-- Precio -->
+                                <div class="text-right ml-4">
+                                    <span class="font-bold text-lg text-gray-900" th:text="${#numbers.formatDecimal(producto.precio, 0, 'POINT', 2, 'COMMA') + ' €'}">0,00 €</span>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap justify-between items-center mt-2">
+                                <div>
+                                    <!-- Ubicación -->
+                                    <div class="flex items-center text-sm text-gray-500 mb-1">
+                                        <i class="fas fa-map-marker-alt mr-1"></i>
+                                        <span th:text="${producto.ubicacionCiudad + ', ' + producto.ubicacionProvincia}">Ciudad, Provincia</span>
+                                    </div>
+
+                                    <!-- Estado y fecha -->
+                                    <div class="flex items-center">
+                                            <span class="inline-flex items-center px-2 py-1 bg-gray-100 text-xs font-medium rounded-full text-gray-700 mr-2" th:text="${producto.estadoNombre}">
+                                                Estado
+                                            </span>
+                                        <span class="text-xs text-gray-500" th:text="${#temporals.format(producto.fechaPublicacion, 'dd/MM/yyyy')}">01/01/2025</span>
+                                    </div>
+                                </div>
+
+                                <!-- Botón de contacto -->
+                                <a th:href="@{'/productos/' + ${producto.id}}" class="mt-2 md:mt-0 inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all text-sm">
+                                    <i class="fas fa-eye mr-2"></i> Ver detalles
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paginación -->
+            <div th:if="${totalPaginas > 1}" class="mt-6 flex justify-center">
+                <nav class="inline-flex rounded-md shadow">
+                    <a th:if="${paginaActual > 0}"
+                       th:href="@{${#httpServletRequest.requestURI}(termino=${termino}, page=${paginaActual - 1}, size=${tamanoPagina}, sort=${#httpServletRequest.getParameter('sort')}, ${#httpServletRequest.getQueryString()?.replace('page='+paginaActual, '').replace('termino='+termino, '')} ?: '')}"
+                       class="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <span th:unless="${paginaActual > 0}"
+                          class="relative inline-flex items-center rounded-l-md border border-gray-300 bg-gray-100 px-2 py-2 text-sm font-medium text-gray-400 cursor-not-allowed">
+                            <i class="fas fa-chevron-left"></i>
+                        </span>
+
+                    <!-- Números de página -->
+                    <th:block th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}">
+                        <a th:if="${i != paginaActual}"
+                           th:href="@{${#httpServletRequest.requestURI}(termino=${termino}, page=${i}, size=${tamanoPagina}, sort=${#httpServletRequest.getParameter('sort')}, ${#httpServletRequest.getQueryString()?.replace('page='+paginaActual, '').replace('termino='+termino, '')} ?: '')}"
+                           class="relative inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span th:text="${i + 1}">1</span>
+                        </a>
+                        <span th:if="${i == paginaActual}"
+                              class="relative inline-flex items-center border border-primary-500 bg-primary-50 px-4 py-2 text-sm font-medium text-primary-600">
+                                <span th:text="${i + 1}">1</span>
+                            </span>
+                    </th:block>
+
+                    <a th:if="${paginaActual < totalPaginas - 1}"
+                       th:href="@{${#httpServletRequest.requestURI}(termino=${termino}, page=${paginaActual + 1}, size=${tamanoPagina}, sort=${#httpServletRequest.getParameter('sort')}, ${#httpServletRequest.getQueryString()?.replace('page='+paginaActual, '').replace('termino='+termino, '')} ?: '')}"
+                       class="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                    <span th:unless="${paginaActual < totalPaginas - 1}"
+                          class="relative inline-flex items-center rounded-r-md border border-gray-300 bg-gray-100 px-2 py-2 text-sm font-medium text-gray-400 cursor-not-allowed">
+                            <i class="fas fa-chevron-right"></i>
+                        </span>
+                </nav>
+            </div>
+
+            <!-- Mensaje si no hay productos -->
+            <div th:if="${#lists.isEmpty(productos)}" class="bg-white rounded-lg shadow-md p-6 text-center">
+                <div class="text-gray-400 mb-4">
+                    <i class="fas fa-search text-5xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-700 mb-2">No se encontraron resultados</h3>
+                <p class="text-gray-500 mb-4">Prueba con otros términos o modifica los filtros</p>
+                <a th:href="@{/productos/buscar(termino=${termino})}" class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all">
+                    <i class="fas fa-sync mr-2"></i> Quitar filtros
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts específicos para esta página -->
+<script th:inline="javascript" layout:fragment="scripts">
+    // Cambiar entre vista de cuadrícula y lista
+    function cambiarVista(vista) {
+        const gridContainer = document.getElementById('grid-view-container');
+        const listContainer = document.getElementById('list-view-container');
+        const gridButton = document.getElementById('grid-view');
+        const listButton = document.getElementById('list-view');
+
+        if (vista === 'grid') {
+            gridContainer.classList.remove('hidden');
+            listContainer.classList.add('hidden');
+            gridButton.classList.add('bg-gray-100', 'active');
+            gridButton.classList.remove('bg-white');
+            listButton.classList.remove('bg-gray-100', 'active');
+            listButton.classList.add('bg-white');
+
+            // Guardar preferencia en localStorage
+            localStorage.setItem('vista-productos', 'grid');
+        } else {
+            gridContainer.classList.add('hidden');
+            listContainer.classList.remove('hidden');
+            listButton.classList.add('bg-gray-100', 'active');
+            listButton.classList.remove('bg-white');
+            gridButton.classList.remove('bg-gray-100', 'active');
+            gridButton.classList.add('bg-white');
+
+            // Guardar preferencia en localStorage
+            localStorage.setItem('vista-productos', 'list');
+        }
+    }
+
+    // Cambiar orden de los productos
+    function cambiarOrden(orden) {
+        // Obtener la URL actual y sus parámetros
+        const url = new URL(window.location.href);
+
+        // Actualizar o añadir el parámetro sort
+        url.searchParams.set('sort', orden);
+
+        // Redireccionar a la nueva URL
+        window.location.href = url.toString();
+    }
+
+    // Mostrar/ocultar filtros en móvil
+    function toggleMobileFilters() {
+        const filtersContainer = document.getElementById('mobile-filters');
+        filtersContainer.classList.toggle('hidden');
+    }
+
+    // Cargar la vista preferida al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        const vistaGuardada = localStorage.getItem('vista-productos');
+        if (vistaGuardada === 'list') {
+            cambiarVista('list');
+        }
+
+        // Actualizar ciudades cuando cambia la provincia
+        const provinciaSelect = document.getElementById('provincia');
+        if (provinciaSelect) {
+            provinciaSelect.addEventListener('change', function() {
+                // Hacer una petición AJAX para obtener las ciudades
+                // En un entorno real, se haría una petición al backend
+                console.log('Cambio de provincia:', this.value);
+            });
+        }
+    });
+</script>
+</body>
+</html>

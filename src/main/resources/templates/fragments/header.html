@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<header th:fragment="header" class="bg-white shadow-md">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center py-4">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <a th:href="@{/}" class="flex items-center">
+                        <span class="text-2xl font-bold text-primary-600">
+                            <i class="fas fa-recycle mr-2"></i>Segundito
+                        </span>
+                </a>
+            </div>
+
+            <!-- Buscador -->
+            <div class="hidden md:block flex-grow max-w-2xl mx-8">
+                <form th:action="@{/productos/buscar}" method="get" class="relative">
+                    <input type="text" name="termino" placeholder="¿Qué estás buscando?"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-600">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Menú y botones -->
+            <div class="flex items-center">
+                <!-- Botón de categorías -->
+                <div class="relative mr-2 md:mr-4">
+                    <button onclick="toggleDropdown('categorias-dropdown')" class="flex items-center text-gray-600 hover:text-primary-600 focus:outline-none">
+                        <i class="fas fa-th-large mr-1"></i>
+                        <span class="hidden md:inline">Categorías</span>
+                        <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                    </button>
+                    <!-- Dropdown de categorías -->
+                    <div id="categorias-dropdown" class="hidden absolute z-10 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                        <div class="py-1" role="menu" aria-orientation="vertical">
+                            <a th:href="@{/categorias/1}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                <i class="fas fa-car text-primary-500 mr-2"></i> Motor
+                            </a>
+                            <a th:href="@{/categorias/2}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                <i class="fas fa-home text-primary-500 mr-2"></i> Inmobiliaria
+                            </a>
+                            <a th:href="@{/categorias/3}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                <i class="fas fa-briefcase text-primary-500 mr-2"></i> Empleo
+                            </a>
+                            <a th:href="@{/categorias/4}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                <i class="fas fa-laptop text-primary-500 mr-2"></i> Electrónica
+                            </a>
+                            <a th:href="@{/categorias}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 border-t" role="menuitem">
+                                Ver todas las categorías
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón de vender -->
+                <a th:href="@{/productos/nuevo}" class="hidden md:flex items-center py-2 px-4 bg-accent text-white rounded-lg hover:bg-yellow-600 transition-all mr-4">
+                    <i class="fas fa-plus-circle mr-2"></i> Vender
+                </a>
+
+                <!-- Menú de usuario -->
+                <div sec:authorize="isAuthenticated()" class="relative">
+                    <button onclick="toggleDropdown('usuario-dropdown')" class="flex items-center text-gray-600 hover:text-primary-600 focus:outline-none">
+                        <i class="fas fa-user-circle text-xl mr-1"></i>
+                        <span class="hidden md:inline" sec:authentication="name">Usuario</span>
+                        <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                    </button>
+                    <!-- Dropdown de usuario -->
+                    <div id="usuario-dropdown" class="hidden absolute right-0 z-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                        <div class="py-1" role="menu" aria-orientation="vertical">
+                            <a th:href="@{/perfil}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                <i class="fas fa-user text-primary-500 mr-2"></i> Mi perfil
+                            </a>
+                            <a th:href="@{/mis-productos}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                <i class="fas fa-box text-primary-500 mr-2"></i> Mis productos
+                            </a>
+                            <a th:href="@{/mensajes}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                <i class="fas fa-envelope text-primary-500 mr-2"></i> Mensajes
+                                <span class="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">2</span>
+                            </a>
+                            <a th:href="@{/favoritos}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                <i class="fas fa-heart text-primary-500 mr-2"></i> Favoritos
+                            </a>
+                            <div class="border-t border-gray-100"></div>
+                            <form th:action="@{/logout}" method="post" class="block">
+                                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                    <i class="fas fa-sign-out-alt text-primary-500 mr-2"></i> Cerrar sesión
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de login/registro -->
+                <div sec:authorize="!isAuthenticated()" class="flex items-center">
+                    <a th:href="@{/login}" class="text-gray-600 hover:text-primary-600 mr-4">
+                        <i class="fas fa-sign-in-alt mr-1"></i>
+                        <span class="hidden md:inline">Iniciar sesión</span>
+                    </a>
+                    <a th:href="@{/registro}" class="hidden md:block py-2 px-4 border border-primary-600 text-primary-600 rounded-lg hover:bg-primary-50 transition-all">
+                        Registrarse
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buscador móvil -->
+        <div class="md:hidden pb-4">
+            <form th:action="@{/productos/buscar}" method="get" class="relative">
+                <input type="text" name="termino" placeholder="¿Qué estás buscando?"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-600">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</header>
+</body>
+</html>

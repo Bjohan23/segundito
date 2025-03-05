@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Mi perfil - Segundito</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="mb-6">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Mi perfil</h1>
+        <p class="text-gray-600">
+            Gestiona tu información personal y tus productos.
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Menú lateral -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-4 border-b">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 mr-3">
+                            <div class="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <span th:if="${usuario.fotoPerfil == null}" class="text-gray-500 text-2xl">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                <img th:if="${usuario.fotoPerfil != null}" th:src="@{'/uploads/' + ${usuario.fotoPerfil}}"
+                                     th:alt="${usuario.nombre}" class="w-full h-full rounded-full object-cover">
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800" th:text="${usuario.nombre}">
+                                Nombre de usuario
+                            </h3>
+                            <p class="text-sm text-gray-600" th:text="${usuario.email}">
+                                email@ejemplo.com
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <nav class="p-2">
+                    <ul>
+                        <li>
+                            <a href="#datos-personales" class="flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 active-tab">
+                                <i class="fas fa-user-circle w-5 text-center mr-2 text-primary-500"></i>
+                                Datos personales
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#mis-productos" class="flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-box w-5 text-center mr-2 text-primary-500"></i>
+                                Mis productos
+                                <span class="ml-auto bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full" th:text="${#lists.size(productos)}">0</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#favoritos" class="flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-heart w-5 text-center mr-2 text-primary-500"></i>
+                                Favoritos
+                                <span class="ml-auto bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full" th:text="${#lists.size(favoritos)}">0</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#mensajes" class="flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-envelope w-5 text-center mr-2 text-primary-500"></i>
+                                Mensajes
+                                <span th:if="${mensajesNoLeidos > 0}" class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full" th:text="${mensajesNoLeidos}">0</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#valoraciones" class="flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-star w-5 text-center mr-2 text-primary-500"></i>
+                                Valoraciones
+                                <span class="ml-auto bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full" th:text="${#lists.size(valoraciones)}">0</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="lg:col-span-3">
+            <!-- Datos personales -->
+            <section id="datos-personales" class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Datos personales</h2>
+
+                <form th:action="@{/perfil/actualizar}" method="post" enctype="multipart/form-data">
+                    <!-- Foto de perfil -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Foto de perfil</label>
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 mr-4">
+                                <div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                                        <span th:if="${usuario.fotoPerfil == null}" class="text-gray-500 text-3xl">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                    <img th:if="${usuario.fotoPerfil != null}" th:src="@{'/uploads/' + ${usuario.fotoPerfil}}"
+                                         th:alt="${usuario.nombre}" class="w-full h-full object-cover">
+                                </div>
+                            </div>
+                            <div>
+                                <input type="file" id="fotoPerfil" name="fotoPerfil" accept="image/*" class="hidden">
+                                <label for="fotoPerfil" class="inline-block px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 cursor-pointer mb-1">
+                                    Cambiar foto
+                                </label>
+                                <p class="text-xs text-gray-500">JPG, PNG o GIF. Máximo 2MB.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Nombre -->
+                        <div>
+                            <label for="nombre" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                            <input type="text" id="nombre" name="nombre" th:value="${usuario.nombre}" required
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+
+                        <!-- Email -->
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" id="email" name="email" th:value="${usuario.email}" required disabled
+                                   class="w-full px-4 py-2 border border-gray-200 bg-gray-100 rounded-lg focus:outline-none cursor-not-allowed">
+                            <p class="mt-1 text-xs text-gray-500">No se puede cambiar el email</p>
+                        </div>
+
+                        <!-- Teléfono -->
+                        <div>
+                            <label for="telefono" class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                            <input type="tel" id="telefono" name="telefono" th:value="${usuario.telefono}" required
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+
+                        <!-- Contraseña -->
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Nueva contraseña</label>
+                            <input type="password" id="password" name="password"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                   placeholder="Dejar en blanco para mantener la actual">
+                        </div>
+
+                        <!-- Biografía -->
+                        <div class="md:col-span-2">
+                            <label for="biografia" class="block text-sm font-medium text-gray-700 mb-1">Biografía</label>
+                            <textarea id="biografia" name="biografia" rows="3"
+                                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                      th:text="${usuario.biografia}"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end">
+                        <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all">
+                            Guardar cambios
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Mis productos -->
+            <section id="mis-productos" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-gray-800">Mis productos</h2>
+                    <a th:href="@{/productos/nuevo}" class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all">
+                        <i class="fas fa-plus-circle mr-2"></i> Nuevo producto
+                    </a>
+                </div>
+
+                <!-- Filtros rápidos -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <button class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium text-gray-700 active-filter">
+                        Todos <span class="ml-1" th:text="${#lists.size(productos)}">0</span>
+                    </button>
+                    <button class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium text-gray-700">
+                        Activos <span class="ml-1" th:text="${#lists.size(productosActivos)}">0</span>
+                    </button>
+                    <button class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium text-gray-700">
+                        Vendidos <span class="ml-1" th:text="${#lists.size(productosVendidos)}">0</span>
+                    </button>
+                    <button class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium text-gray-700">
+                        Destacados <span class="ml-1" th:text="${#lists.size(productosDestacados)}">0</span>
+                    </button>
+                </div>
+
+                <!-- Lista de productos -->
+                <div th:if="${not #lists.isEmpty(productos)}" class="divide-y">
+                    <div th:each="producto : ${productos}" class="py-4 flex flex-col md:flex-row">
+                        <!-- Imagen -->
+                        <div class="flex-shrink-0 w-full md:w-40 h-28 mb-3 md:mb-0 md:mr-4">
+                            <a th:href="@{'/productos/' + ${producto.id}}">
+                                <img th:if="${producto.imagenPrincipal}" th:src="@{'/uploads/' + ${producto.imagenPrincipal}}"
+                                     class="w-full h-full object-cover rounded" th:alt="${producto.titulo}">
+                                <div th:unless="${producto.imagenPrincipal}" class="w-full h-full flex items-center justify-center bg-gray-200 rounded">
+                                    <i class="fas fa-image text-2xl text-gray-400"></i>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- Datos del producto -->
+                        <div class="flex-grow">
+                            <div class="flex flex-wrap items-start justify-between mb-1">
+                                <h3 class="font-semibold text-gray-800">
+                                    <a th:href="@{'/productos/' + ${producto.id}}" th:text="${producto.titulo}" class="hover:text-primary-600">
+                                        Título del producto
+                                    </a>
+                                </h3>
+                                <span class="font-semibold text-gray-900" th:text="${#numbers.formatDecimal(producto.precio, 0, 'POINT', 2, 'COMMA') + ' €'}">
+                                        0,00 €
+                                    </span>
+                            </div>
+
+                            <!-- Etiquetas de estado -->
+                            <div class="flex flex-wrap gap-2 mb-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800" th:text="${producto.estadoNombre}">
+                                        Estado
+                                    </span>
+                                <span th:if="${producto.destacado}" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        <i class="fas fa-star mr-1"></i> Destacado
+                                    </span>
+                                <span th:if="${producto.vendido}" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        <i class="fas fa-check-circle mr-1"></i> Vendido
+                                    </span>
+                            </div>
+
+                            <div class="flex flex-wrap justify-between items-center">
+                                <div class="text-xs text-gray-500">
+                                    <i class="far fa-calendar-alt mr-1"></i>
+                                    <span th:text="${#temporals.format(producto.fechaPublicacion, 'dd/MM/yyyy')}">01/01/2025</span>
+                                    <span class="mx-2">•</span>
+                                    <i class="far fa-eye mr-1"></i>
+                                    <span th:text="${producto.visitas}">0</span> visitas
+                                </div>
+
+                                <!-- Botones de acción -->
+                                <div class="flex space-x-2 mt-2 md:mt-0">
+                                    <a th:href="@{'/productos/editar/' + ${producto.id}}" class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </a>
+                                    <button th:unless="${producto.vendido}"
+                                            th:onclick="'marcarVendido(' + ${producto.id} + ')'"
+                                            class="text-xs px-2 py-1 bg-green-100 hover:bg-green-200 rounded text-green-700">
+                                        <i class="fas fa-check"></i> Vendido
+                                    </button>
+                                    <button th:if="${producto.destacado}"
+                                            th:onclick="'quitarDestacado(' + ${producto.id} + ')'"
+                                            class="text-xs px-2 py-1 bg-yellow-100 hover:bg-yellow-200 rounded text-yellow-700">
+                                        <i class="fas fa-star"></i> Quitar destacado
+                                    </button>
+                                    <button th:unless="${producto.destacado}"
+                                            th:onclick="'destacarProducto(' + ${producto.id} + ')'"
+                                            class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700">
+                                        <i class="far fa-star"></i> Destacar
+                                    </button>
+                                    <button th:onclick="'eliminarProducto(' + ${producto.id} + ')'"
+                                            class="text-xs px-2 py-1 bg-red-100 hover:bg-red-200 rounded text-red-700">
+                                        <i class="fas fa-trash"></i> Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensaje si no hay productos -->
+                <div th:if="${#lists.isEmpty(productos)}" class="text-center py-8">
+                    <div class="text-gray-400 mb-4">
+                        <i class="fas fa-box-open text-5xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-700 mb-2">No tienes productos publicados</h3>
+                    <p class="text-gray-500 mb-4">Comienza a vender tus productos en Segundito</p>
+                    <a th:href="@{/productos/nuevo}" class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all">
+                        <i class="fas fa-plus-circle mr-2"></i> Publicar producto
+                    </a>
+                </div>
+            </section>
+
+            <!-- Favoritos -->
+            <section id="favoritos" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Mis favoritos</h2>
+
+                <!-- Lista de favoritos -->
+                <div th:if="${not #lists.isEmpty(favoritos)}" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div th:each="favorito : ${favoritos}" class="border rounded-lg overflow-hidden flex">
+                        <!-- Imagen -->
+                        <div class="w-24 h-24 flex-shrink-0">
+                            <a th:href="@{'/productos/' + ${favorito.producto.id}}">
+                                <img th:if="${favorito.producto.imagenPrincipal}" th:src="@{'/uploads/' + ${favorito.producto.imagenPrincipal}}"
+                                     class="w-full h-full object-cover" th:alt="${favorito.producto.titulo}">
+                                <div th:unless="${favorito.producto.imagenPrincipal}" class="w-full h-full flex items-center justify-center bg-gray-200">
+                                    <i class="fas fa-image text-xl text-gray-400"></i>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- Datos del producto -->
+                        <div class="p-3 flex-grow relative">
+                            <h3 class="font-medium text-gray-800 mb-1 pr-6">
+                                <a th:href="@{'/productos/' + ${favorito.producto.id}}" th:text="${favorito.producto.titulo}" class="hover:text-primary-600">
+                                    Título del producto
+                                </a>
+                            </h3>
+                            <div class="text-primary-600 font-semibold mb-1" th:text="${#numbers.formatDecimal(favorito.producto.precio, 0, 'POINT', 2, 'COMMA') + ' €'}">
+                                0,00 €
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                <span th:text="${favorito.producto.ubicacionCiudad}">Ciudad</span>
+                                <span class="mx-1">•</span>
+                                <span th:text="${#temporals.format(favorito.fechaAgregado, 'dd/MM/yyyy')}">01/01/2025</span>
+                            </div>
+
+                            <!-- Botón para quitar de favoritos -->
+                            <button th:onclick="'quitarFavorito(' + ${favorito.producto.id} + ')'"
+                                    class="absolute top-2 right-2 text-gray-400 hover:text-red-500">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensaje si no hay favoritos -->
+                <div th:if="${#lists.isEmpty(favoritos)}" class="text-center py-8">
+                    <div class="text-gray-400 mb-4">
+                        <i class="far fa-heart text-5xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-700 mb-2">No tienes productos favoritos</h3>
+                    <p class="text-gray-500 mb-4">Guarda productos que te interesen para verlos más tarde</p>
+                    <a th:href="@{/}" class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all">
+                        Explorar productos
+                    </a>
+                </div>
+            </section>
+
+            <!-- Mensajes -->
+            <section id="mensajes" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Mis mensajes</h2>
+
+                <!-- Lista de conversaciones -->
+                <div th:if="${not #lists.isEmpty(conversaciones)}" class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-700 mb-3">Conversaciones</h3>
+                    <div class="divide-y">
+                        <div th:each="conversacion : ${conversaciones}" class="py-3 flex items-center">
+                            <div class="flex-shrink-0 mr-3">
+                                <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                                    <img th:if="${conversacion.producto.imagenPrincipal}" th:src="@{'/uploads/' + ${conversacion.producto.imagenPrincipal}}"
+                                         class="w-full h-full object-cover" th:alt="${conversacion.producto.titulo}">
+                                    <i th:unless="${conversacion.producto.imagenPrincipal}" class="fas fa-image text-gray-400"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow">
+                                <h4 class="font-medium text-gray-800" th:text="${conversacion.producto.titulo}">
+                                    Título del producto
+                                </h4>
+                                <p class="text-sm text-gray-600" th:text="${conversacion.ultimoMensaje}">
+                                    Último mensaje...
+                                </p>
+                            </div>
+                            <div class="flex-shrink-0 ml-3">
+                                <span th:if="${conversacion.noLeidos > 0}" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-500 text-white" th:text="${conversacion.noLeidos}">0</span>
+                                <a th:href="@{'/mensajes/conversacion/' + ${conversacion.producto.id}}" class="ml-2 text-primary-600">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensaje si no hay conversaciones -->
+                <div th:if="${#lists.isEmpty(conversaciones)}" class="text-center py-8">
+                    <div class="text-gray-400 mb-4">
+                        <i class="far fa-comment-alt text-5xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-700 mb-2">No tienes mensajes</h3>
+                    <p class="text-gray-500">Cuando contactes con vendedores o recibas mensajes, aparecerán aquí</p>
+                </div>
+            </section>
+
+            <!-- Valoraciones -->
+            <section id="valoraciones" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800">Valoraciones recibidas</h2>
+
+                    <div class="flex items-center">
+                        <div class="flex">
+                                <span th:each="i : ${#numbers.sequence(1, 5)}"
+                                      th:class="${i <= puntuacionMedia ? 'text-yellow-400' : 'text-gray-300'}">
+                                    <i class="fas fa-star"></i>
+                                </span>
+                        </div>
+                        <span class="ml-2 font-medium" th:text="${puntuacionMedia + ' de 5'}">0 de 5</span>
+                        <span class="ml-2 text-sm text-gray-600" th:text="${totalValoraciones + ' valoraciones'}">0 valoraciones</span>
+                    </div>
+                </div>
+
+                <!-- Lista de valoraciones -->
+                <div th:if="${not #lists.isEmpty(valoraciones)}" class="divide-y">
+                    <div th:each="valoracion : ${valoraciones}" class="py-4">
+                        <div class="flex items-start mb-2">
+                            <div class="flex-shrink-0 mr-3">
+                                <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                        <span th:if="${valoracion.compradorFotoPerfil == null}" class="text-gray-500">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                    <img th:if="${valoracion.compradorFotoPerfil != null}" th:src="@{'/uploads/' + ${valoracion.compradorFotoPerfil}}"
+                                         th:alt="${valoracion.compradorNombre}" class="w-full h-full rounded-full object-cover">
+                                </div>
+                            </div>
+                            <div class="flex-grow">
+                                <div class="flex justify-between">
+                                    <h4 class="font-medium text-gray-800" th:text="${valoracion.compradorNombre}">
+                                        Nombre del comprador
+                                    </h4>
+                                    <span class="text-xs text-gray-500" th:text="${#temporals.format(valoracion.fechaValoracion, 'dd/MM/yyyy')}">
+                                            01/01/2025
+                                        </span>
+                                </div>
+                                <div class="flex text-yellow-400 mt-1 mb-2">
+                                        <span th:each="i : ${#numbers.sequence(1, 5)}"
+                                              th:class="${i <= valoracion.calificacion ? 'text-yellow-400' : 'text-gray-300'}">
+                                            <i class="fas fa-star"></i>
+                                        </span>
+                                </div>
+                                <p class="text-gray-700" th:text="${valoracion.comentario}">
+                                    Comentario de la valoración...
+                                </p>
+                                <div class="mt-2 text-sm">
+                                    <a th:href="@{'/productos/' + ${valoracion.productoId}}" class="text-primary-600 hover:text-primary-800">
+                                        <i class="fas fa-box mr-1"></i>
+                                        <span th:text="${valoracion.productoTitulo}">Título del producto</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensaje si no hay valoraciones -->
+                <div th:if="${#lists.isEmpty(valoraciones)}" class="text-center py-8">
+                    <div class="text-gray-400 mb-4">
+                        <i class="far fa-star text-5xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-700 mb-2">No has recibido valoraciones</h3>
+                    <p class="text-gray-500">Cuando vendas productos y los compradores te valoren, aparecerán aquí</p>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts específicos para esta página -->
+<script layout:fragment="scripts">
+    // Funciones para las pestañas
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabs = document.querySelectorAll('nav a');
+        const sections = document.querySelectorAll('section');
+
+        // Función para mostrar la pestaña correspondiente
+        function showTab(tabId) {
+            // Ocultar todas las secciones
+            sections.forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Quitar la clase active de todas las pestañas
+            tabs.forEach(tab => {
+                tab.classList.remove('bg-primary-50', 'text-primary-700');
+            });
+
+            // Mostrar la sección correspondiente
+            const section = document.getElementById(tabId);
+            if (section) {
+                section.classList.remove('hidden');
+            }
+
+            // Marcar la pestaña como activa
+            const tab = document.querySelector(`a[href="#${tabId}"]`);
+            if (tab) {
+                tab.classList.add('bg-primary-50', 'text-primary-700');
+            }
+
+            // Actualizar la URL con el hash
+            window.location.hash = tabId;
+        }
+
+        // Evento click para las pestañas
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                const tabId = this.getAttribute('href').substring(1);
+                showTab(tabId);
+            });
+        });
+
+        // Mostrar la pestaña según el hash de la URL
+        const hash = window.location.hash.substring(1);
+        if (hash && document.getElementById(hash)) {
+            showTab(hash);
+        } else {
+            // Por defecto, mostrar la primera pestaña
+            showTab('datos-personales');
+        }
+    });
+
+    // Funciones para acciones en productos
+    function marcarVendido(productoId) {
+        if (confirm('¿Confirmas que has vendido este producto?')) {
+            // Hacer petición AJAX para marcar como vendido
+            console.log('Marcar como vendido:', productoId);
+        }
+    }
+
+    function destacarProducto(productoId) {
+        if (confirm('¿Quieres destacar este producto? Tendrá mayor visibilidad.')) {
+            // Hacer petición AJAX para destacar
+            console.log('Destacar producto:', productoId);
+        }
+    }
+
+    function quitarDestacado(productoId) {
+        if (confirm('¿Quieres quitar el producto de destacados?')) {
+            // Hacer petición AJAX para quitar destacado
+            console.log('Quitar destacado:', productoId);
+        }
+    }
+
+    function eliminarProducto(productoId) {
+        if (confirm('¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.')) {
+            // Hacer petición AJAX para eliminar
+            console.log('Eliminar producto:', productoId);
+        }
+    }
+
+    function quitarFavorito(productoId) {
+        if (confirm('¿Quieres quitar este producto de tus favoritos?')) {
+            // Hacer petición AJAX para quitar de favoritos
+            console.log('Quitar de favoritos:', productoId);
+        }
+    }
+
+    // Previsualización de la foto de perfil
+    document.getElementById('fotoPerfil').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgContainer = document.querySelector('.w-20.h-20.rounded-full');
+                imgContainer.innerHTML = '';
+
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'w-full h-full object-cover';
+                img.alt = 'Vista previa';
+
+                imgContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+</body>
+</html>

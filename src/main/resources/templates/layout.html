@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title ?: 'Segundito - Marketplace de segunda mano'}">Segundito</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Configuración de Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e'
+                        },
+                        secondary: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a'
+                        },
+                        accent: '#f59e0b'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Estilos adicionales -->
+    <style>
+        @layer utilities {
+            .transition-all {
+                transition-property: all;
+                transition-duration: 300ms;
+            }
+        }
+    </style>
+
+    <!-- Bloque para añadir estilos específicos de cada página -->
+    <th:block th:replace="${styles}"></th:block>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+<!-- Header -->
+<header th:replace="~{fragments/header :: header}"></header>
+
+<!-- Contenido principal -->
+<main class="flex-grow container mx-auto px-4 py-6 md:py-8">
+    <div class="mx-auto max-w-7xl">
+        <!-- Alertas -->
+        <div th:if="${alertSuccess != null}" class="mb-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow">
+            <p th:text="${alertSuccess}">Mensaje de éxito</p>
+        </div>
+        <div th:if="${alertError != null}" class="mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow">
+            <p th:text="${alertError}">Mensaje de error</p>
+        </div>
+
+        <!-- Contenido específico de cada página -->
+        <div th:replace="${content}">
+            <!-- El contenido será reemplazado -->
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<!-- Scripts comunes -->
+<script>
+    // Funciones comunes
+    function toggleDropdown(id) {
+        const dropdown = document.getElementById(id);
+        dropdown.classList.toggle('hidden');
+    }
+</script>
+
+<!-- Bloque para añadir scripts específicos de cada página -->
+<th:block th:replace="${scripts}"></th:block>
+</body>
+</html>

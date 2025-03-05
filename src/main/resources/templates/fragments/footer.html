@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<footer th:fragment="footer" class="bg-gray-800 text-white">
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- Logo y descripción -->
+            <div class="md:col-span-1">
+                <div class="flex items-center mb-4">
+                        <span class="text-xl font-bold text-white">
+                            <i class="fas fa-recycle mr-2"></i>Segundito
+                        </span>
+                </div>
+                <p class="text-gray-300 text-sm">
+                    Tu marketplace de confianza para comprar y vender artículos de segunda mano.
+                    Damos una segunda vida a tus productos.
+                </p>
+                <div class="mt-4 flex space-x-4">
+                    <a href="#" class="text-gray-300 hover:text-white">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="text-gray-300 hover:text-white">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-gray-300 hover:text-white">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Enlaces rápidos -->
+            <div class="md:col-span-1">
+                <h3 class="text-lg font-semibold mb-4">Enlaces rápidos</h3>
+                <ul class="space-y-2">
+                    <li>
+                        <a th:href="@{/}" class="text-gray-300 hover:text-white">Inicio</a>
+                    </li>
+                    <li>
+                        <a th:href="@{/categorias}" class="text-gray-300 hover:text-white">Categorías</a>
+                    </li>
+                    <li>
+                        <a th:href="@{/productos/destacados}" class="text-gray-300 hover:text-white">Productos destacados</a>
+                    </li>
+                    <li>
+                        <a th:href="@{/productos/nuevo}" class="text-gray-300 hover:text-white">Vender un producto</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Categorías populares -->
+            <div class="md:col-span-1">
+                <h3 class="text-lg font-semibold mb-4">Categorías populares</h3>
+                <ul class="space-y-2">
+                    <li>
+                        <a th:href="@{/categorias/1}" class="text-gray-300 hover:text-white">Motor</a>
+                    </li>
+                    <li>
+                        <a th:href="@{/categorias/2}" class="text-gray-300 hover:text-white">Inmobiliaria</a>
+                    </li>
+                    <li>
+                        <a th:href="@{/categorias/4}" class="text-gray-300 hover:text-white">Electrónica</a>
+                    </li>
+                    <li>
+                        <a th:href="@{/categorias/5}" class="text-gray-300 hover:text-white">Hogar</a>
+                    </li>
+                    <li>
+                        <a th:href="@{/categorias/6}" class="text-gray-300 hover:text-white">Moda</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Información de contacto -->
+            <div class="md:col-span-1">
+                <h3 class="text-lg font-semibold mb-4">Contacto</h3>
+                <ul class="space-y-2">
+                    <li class="flex items-start">
+                        <i class="fas fa-envelope mt-1 text-gray-400 mr-2"></i>
+                        <span class="text-gray-300">contacto@segundito.com</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-phone-alt mt-1 text-gray-400 mr-2"></i>
+                        <span class="text-gray-300">+34 912 345 678</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-map-marker-alt mt-1 text-gray-400 mr-2"></i>
+                        <span class="text-gray-300">Calle Principal 123<br>28001 Madrid, España</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Línea divisoria -->
+        <div class="border-t border-gray-700 mt-8 pt-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm">
+                    © 2025 Segundito. Todos los derechos reservados.
+                </p>
+                <div class="mt-4 md:mt-0">
+                    <ul class="flex space-x-4 text-sm text-gray-400">
+                        <li>
+                            <a th:href="@{/terminos-condiciones}" class="hover:text-white">Términos y condiciones</a>
+                        </li>
+                        <li>
+                            <a th:href="@{/politica-privacidad}" class="hover:text-white">Política de privacidad</a>
+                        </li>
+                        <li>
+                            <a th:href="@{/cookies}" class="hover:text-white">Cookies</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

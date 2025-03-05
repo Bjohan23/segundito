@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Publicar producto - Segundito</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="mb-6">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Publica tu producto</h1>
+        <p class="text-gray-600">
+            Completa el formulario con la información de tu producto para publicarlo en Segundito.
+        </p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <form th:action="@{/productos/nuevo}" method="post" enctype="multipart/form-data" th:object="${productoDTO}">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Columna izquierda -->
+                <div>
+                    <!-- Título -->
+                    <div class="mb-4">
+                        <label for="titulo" class="block text-sm font-medium text-gray-700 mb-1">
+                            Título del producto *
+                        </label>
+                        <input type="text" id="titulo" name="titulo" th:field="*{titulo}" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                               placeholder="Ej: iPhone 12 Pro 128GB en perfecto estado">
+                        <div th:if="${#fields.hasErrors('titulo')}" class="mt-1 text-red-600 text-sm" th:errors="*{titulo}">
+                            Error en el título
+                        </div>
+                    </div>
+
+                    <!-- Categoría -->
+                    <div class="mb-4">
+                        <label for="categoriaId" class="block text-sm font-medium text-gray-700 mb-1">
+                            Categoría *
+                        </label>
+                        <select id="categoriaId" name="categoriaId" th:field="*{categoriaId}" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <option value="">Selecciona una categoría</option>
+                            <option th:each="categoria : ${categorias}"
+                                    th:value="${categoria.id}"
+                                    th:text="${categoria.nombre}">
+                                Nombre de la categoría
+                            </option>
+                        </select>
+                        <div th:if="${#fields.hasErrors('categoriaId')}" class="mt-1 text-red-600 text-sm" th:errors="*{categoriaId}">
+                            Error en la categoría
+                        </div>
+                    </div>
+
+                    <!-- Estado del producto -->
+                    <div class="mb-4">
+                        <label for="estadoId" class="block text-sm font-medium text-gray-700 mb-1">
+                            Estado del producto *
+                        </label>
+                        <select id="estadoId" name="estadoId" th:field="*{estadoId}" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <option value="">Selecciona el estado</option>
+                            <option th:each="estado : ${estados}"
+                                    th:value="${estado.id}"
+                                    th:text="${estado.nombre}">
+                                Estado del producto
+                            </option>
+                        </select>
+                        <div th:if="${#fields.hasErrors('estadoId')}" class="mt-1 text-red-600 text-sm" th:errors="*{estadoId}">
+                            Error en el estado
+                        </div>
+                    </div>
+
+                    <!-- Precio -->
+                    <div class="mb-4">
+                        <label for="precio" class="block text-sm font-medium text-gray-700 mb-1">
+                            Precio (€) *
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500">€</span>
+                            </div>
+                            <input type="number" id="precio" name="precio" th:field="*{precio}" required
+                                   step="0.01" min="0"
+                                   class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                   placeholder="0.00">
+                        </div>
+                        <div th:if="${#fields.hasErrors('precio')}" class="mt-1 text-red-600 text-sm" th:errors="*{precio}">
+                            Error en el precio
+                        </div>
+                    </div>
+
+                    <!-- Ubicación -->
+                    <div class="mb-4">
+                        <label for="ubicacionId" class="block text-sm font-medium text-gray-700 mb-1">
+                            Ubicación *
+                        </label>
+                        <select id="ubicacionId" name="ubicacionId" th:field="*{ubicacionId}" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <option value="">Selecciona una ubicación</option>
+                            <option th:each="ubicacion : ${ubicaciones}"
+                                    th:value="${ubicacion.id}"
+                                    th:text="${ubicacion.ciudad + ', ' + ubicacion.provincia}">
+                                Ciudad, Provincia
+                            </option>
+                        </select>
+                        <div th:if="${#fields.hasErrors('ubicacionId')}" class="mt-1 text-red-600 text-sm" th:errors="*{ubicacionId}">
+                            Error en la ubicación
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna derecha -->
+                <div>
+                    <!-- Descripción -->
+                    <div class="mb-4">
+                        <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-1">
+                            Descripción *
+                        </label>
+                        <textarea id="descripcion" name="descripcion" th:field="*{descripcion}" required rows="5"
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                  placeholder="Describe tu producto, menciona características, razón de venta, etc."></textarea>
+                        <div th:if="${#fields.hasErrors('descripcion')}" class="mt-1 text-red-600 text-sm" th:errors="*{descripcion}">
+                            Error en la descripción
+                        </div>
+                        <p class="mt-1 text-sm text-gray-500">
+                            Mínimo 20 caracteres. Incluye detalles como marca, modelo, tamaño, color, etc.
+                        </p>
+                    </div>
+
+                    <!-- Imágenes -->
+                    <div class="mb-6">
+                        <label for="imagenes" class="block text-sm font-medium text-gray-700 mb-1">
+                            Imágenes (máximo 5) *
+                        </label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                            <div class="space-y-1 text-center">
+                                <i class="fas fa-image text-gray-400 text-3xl mb-2"></i>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="imagenes" class="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500">
+                                        <span>Subir imágenes</span>
+                                        <input id="imagenes" name="imagenes" type="file" class="sr-only"
+                                               accept="image/*" multiple required>
+                                    </label>
+                                    <p class="pl-1">o arrastra y suelta</p>
+                                </div>
+                                <p class="text-xs text-gray-500">
+                                    PNG, JPG, GIF hasta 10MB
+                                </p>
+                            </div>
+                        </div>
+                        <!-- Previsualización de imágenes -->
+                        <div id="preview-container" class="mt-3 grid grid-cols-5 gap-2 hidden">
+                            <!-- Las imágenes se añadirán aquí mediante JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Opciones adicionales -->
+                    <div class="mb-6">
+                        <div class="flex items-center">
+                            <input id="destacado" name="destacado" type="checkbox" th:field="*{destacado}"
+                                   class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                            <label for="destacado" class="ml-2 block text-sm text-gray-700">
+                                Destacar este producto (mayor visibilidad)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="border-t pt-6 flex justify-end space-x-4">
+                <a th:href="@{/}" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-all">
+                    Cancelar
+                </a>
+                <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all">
+                    Publicar producto
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Scripts específicos para esta página -->
+<script layout:fragment="scripts">
+    // Previsualización de imágenes
+    document.getElementById('imagenes').addEventListener('change', function(event) {
+        const previewContainer = document.getElementById('preview-container');
+        previewContainer.innerHTML = '';
+        previewContainer.classList.remove('hidden');
+
+        const files = event.target.files;
+
+        // Limitar a máximo 5 imágenes
+        const maxFiles = Math.min(files.length, 5);
+
+        for (let i = 0; i < maxFiles; i++) {
+            const file = files[i];
+
+            // Validar que sea una imagen
+            if (!file.type.startsWith('image/')) continue;
+
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'relative';
+
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'w-full h-24 object-cover rounded border';
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'absolute top-1 right-1 bg-white rounded-full w-5 h-5 flex items-center justify-center shadow text-red-500 hover:text-red-700';
+                removeBtn.innerHTML = '<i class="fas fa-times text-xs"></i>';
+                removeBtn.onclick = function() {
+                    // Eliminar esta imagen de la previsualización
+                    previewItem.remove();
+
+                    // Si no quedan imágenes, ocultar el contenedor
+                    if (previewContainer.children.length === 0) {
+                        previewContainer.classList.add('hidden');
+                    }
+                };
+
+                previewItem.appendChild(img);
+                previewItem.appendChild(removeBtn);
+                previewContainer.appendChild(previewItem);
+            };
+
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+</body>
+</html>
