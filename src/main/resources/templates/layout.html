@@ -1,68 +1,16 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${title ?: 'Segundito - Marketplace de segunda mano'}">Segundito</title>
-
-    <!-- Tailwind CSS -->
+    <!-- Tu head actual -->
+    <!-- Pero añade esto para recibir fragmentos de título -->
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Segundito</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <!-- Configuración de Tailwind -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#bae6fd',
-                            300: '#7dd3fc',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                            800: '#075985',
-                            900: '#0c4a6e'
-                        },
-                        secondary: {
-                            50: '#f0fdfa',
-                            100: '#ccfbf1',
-                            200: '#99f6e4',
-                            300: '#5eead4',
-                            400: '#2dd4bf',
-                            500: '#14b8a6',
-                            600: '#0d9488',
-                            700: '#0f766e',
-                            800: '#115e59',
-                            900: '#134e4a'
-                        },
-                        accent: '#f59e0b'
-                    }
-                }
-            }
-        }
-    </script>
-
-    <!-- Estilos adicionales -->
-    <style>
-        @layer utilities {
-            .transition-all {
-                transition-property: all;
-                transition-duration: 300ms;
-            }
-        }
-    </style>
-
-    <!-- Bloque para añadir estilos específicos de cada página -->
-    <th:block th:replace="${styles}"></th:block>
+    <!-- Fragmentos de estilos -->
+    <th:block layout:fragment="styles"></th:block>
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col">
-
 <!-- Header -->
 <header th:replace="~{fragments/header :: header}"></header>
 
@@ -78,7 +26,7 @@
         </div>
 
         <!-- Contenido específico de cada página -->
-        <div th:replace="${content}">
+        <div layout:fragment="content">
             <!-- El contenido será reemplazado -->
         </div>
     </div>
@@ -96,7 +44,7 @@
     }
 </script>
 
-<!-- Bloque para añadir scripts específicos de cada página -->
-<th:block th:replace="${scripts}"></th:block>
+<!-- Fragmentos de scripts -->
+<th:block layout:fragment="scripts"></th:block>
 </body>
 </html>
