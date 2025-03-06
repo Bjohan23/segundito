@@ -3,11 +3,96 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
-    <!-- Tu head actual -->
-    <!-- Pero añade esto para recibir fragmentos de título -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Segundito</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Fragmentos de estilos -->
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Google Fonts - Opcionales pero recomendados -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Configuración mejorada de Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e'
+                        },
+                        secondary: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a'
+                        },
+                        accent: '#f59e0b'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px rgba(0, 0, 0, 0.05)',
+                        'hover': '0 10px 25px rgba(0, 0, 0, 0.1)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Estilos adicionales y personalizados -->
+    <style>
+        @layer utilities {
+            .transition-all {
+                transition-property: all;
+                transition-duration: 300ms;
+            }
+        }
+
+        /* Mejoras para dar un aspecto más profesional */
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        .btn-primary {
+            @apply px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-all;
+        }
+
+        .btn-secondary {
+            @apply px-6 py-3 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-all;
+        }
+
+        .card {
+            @apply bg-white rounded-xl shadow-soft hover:shadow-hover transition-all;
+        }
+    </style>
+
+    <!-- Bloque para añadir estilos específicos de cada página -->
     <th:block layout:fragment="styles"></th:block>
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col">
@@ -18,11 +103,17 @@
 <main class="flex-grow container mx-auto px-4 py-6 md:py-8">
     <div class="mx-auto max-w-7xl">
         <!-- Alertas -->
-        <div th:if="${alertSuccess != null}" class="mb-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow">
-            <p th:text="${alertSuccess}">Mensaje de éxito</p>
+        <div th:if="${alertSuccess != null}" class="mb-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-soft">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle mr-3 text-green-500"></i>
+                <p th:text="${alertSuccess}">Mensaje de éxito</p>
+            </div>
         </div>
-        <div th:if="${alertError != null}" class="mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow">
-            <p th:text="${alertError}">Mensaje de error</p>
+        <div th:if="${alertError != null}" class="mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-soft">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle mr-3 text-red-500"></i>
+                <p th:text="${alertError}">Mensaje de error</p>
+            </div>
         </div>
 
         <!-- Contenido específico de cada página -->
@@ -38,10 +129,26 @@
 <!-- Scripts comunes -->
 <script>
     // Funciones comunes
+    // Asegúrate de que esta función funcione correctamente
     function toggleDropdown(id) {
         const dropdown = document.getElementById(id);
-        dropdown.classList.toggle('hidden');
+        if (dropdown) {
+            dropdown.classList.toggle('hidden');
+        } else {
+            console.error(`El elemento con id ${id} no existe`);
+        }
     }
+
+    // Cerrar dropdowns al hacer clic fuera de ellos
+    document.addEventListener('click', function(event) {
+        const dropdowns = document.querySelectorAll('.dropdown-content');
+        dropdowns.forEach(function(dropdown) {
+            if (!event.target.closest('.dropdown-trigger') &&
+                !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    });
 </script>
 
 <!-- Fragmentos de scripts -->

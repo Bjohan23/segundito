@@ -44,11 +44,16 @@ public class SecurityConfig {
                         .requestMatchers("/api/estados-producto/**").permitAll()
                         .requestMatchers("/api/ubicaciones/publicas/**").permitAll()
                         .requestMatchers("/").permitAll()
-                        .requestMatchers("/index.html", "/login", "/registro").permitAll()
-                        .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**").permitAll()
+                        .requestMatchers("/index", "/login", "/registro").permitAll()
+                        // Vistas web
+                        .requestMatchers("/productos/**").permitAll()
+                        .requestMatchers("/categorias/**").permitAll()
+                        .requestMatchers("/usuario/**").permitAll()
+                        // Recursos estáticos
+                        .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**", "/favicon.ico").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         // Resto de URLs requieren autenticación
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll() // Cambia a authenticated cuando esté listo
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
