@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Controller
@@ -39,9 +40,14 @@ public class CategoriaViewController {
         model.addAttribute("title", "Categorías - Segundito");
         return "categorias/listar";
     }
+
     @GetMapping("/{id}")
     public String verCategoria(
             @PathVariable Integer id,
+            @RequestParam(required = false) String termino,
+            @RequestParam(required = false) BigDecimal precioMin,
+            @RequestParam(required = false) BigDecimal precioMax,
+            @RequestParam(required = false) Integer subcategoriaId,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "12") Integer size,
             @RequestParam(defaultValue = "fechaPublicacion") String sort,
@@ -53,11 +59,36 @@ public class CategoriaViewController {
             Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
 
             // Obtener categoría
-            model.addAttribute("categoria", categoriaService.buscarPorId(id));
+            CategoriaResponseDTO categoria = categoriaService.buscarPorId(id);
+            model.addAttribute("categoria", categoria);
+            model.addAttribute("categorias", categoriaService.listarTodas());
             model.addAttribute("subcategorias", categoriaService.listarSubcategorias(id));
 
-            // Obtener productos de la categoría
-            Page<ProductoResponseDTO> productosPage = productoService.listarPorCategoria(id, pageable);
+            // ID de categoría a usar (puede ser subcategoría si se especifica)
+            Integer categoriaIdAUsar = subcategoriaId != null ? subcategoriaId : id;
+
+            // Obtener productos de la categoría con filtros
+            Page<ProductoResponseDTO> productosPage;
+
+            // Valores por defecto para precios si no se especifican
+            BigDecimal minPrecio = precioMin != null ? precioMin : BigDecimal.ZERO;
+            BigDecimal maxPrecio = precioMax != null ? precioMax : new BigDecimal("999999999");
+
+            if (termino != null && !termino.isEmpty() && (precioMin != null || precioMax != null)) {
+                // Búsqueda combinada: término + categoría + rango precio
+                productosPage = productoService.buscarPorCategoriaTerminoYPrecio(
+                        categoriaIdAUsar, termino, minPrecio, maxPrecio, pageable);
+            } else if (termino != null && !termino.isEmpty()) {
+                // Búsqueda por término + categoría
+                productosPage = productoService.buscarPorTerminoYCategoria(termino, categoriaIdAUsar, pageable);
+            } else if (precioMin != null || precioMax != null) {
+                // Búsqueda por rango de precio + categoría
+                productosPage = productoService.buscarPorCategoriaYRangoPrecio(
+                        categoriaIdAUsar, minPrecio, maxPrecio, pageable);
+            } else {
+                // Búsqueda estándar por categoría
+                productosPage = productoService.listarPorCategoria(categoriaIdAUsar, pageable);
+            }
 
             // Añadir información de productos al modelo
             model.addAttribute("productos", productosPage.getContent());
@@ -65,13 +96,9 @@ public class CategoriaViewController {
             model.addAttribute("totalPaginas", productosPage.getTotalPages());
             model.addAttribute("paginaActual", productosPage.getNumber());
             model.addAttribute("tamanoPagina", productosPage.getSize());
-            model.addAttribute("categorias", categoriaService.listarTodas());
 
-            // Depuración
-            System.out.println("Productos encontrados para categoría " + id + ": " + productosPage.getTotalElements());
-
-            model.addAttribute("title", "Categoría - Segundito");
-            return "categoria/listar";
+            model.addAttribute("title", categoria.getNombre() + " - Segundito");
+            return "categorias/detalle";
         } catch (Exception e) {
             e.printStackTrace();
             model.addAttribute("error", "Error al cargar la categoría: " + e.getMessage());

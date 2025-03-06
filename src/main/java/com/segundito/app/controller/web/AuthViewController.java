@@ -3,6 +3,7 @@ package com.segundito.app.controller.web;
 import com.segundito.app.dto.RegistroRequest;
 import com.segundito.app.dto.UsuarioDTO;
 import com.segundito.app.entity.Usuario;
+import com.segundito.app.service.CategoriaService;
 import com.segundito.app.service.UsuarioService;
 import com.segundito.app.util.FileUploadUtil;
 import jakarta.validation.Valid;
@@ -24,16 +25,19 @@ public class AuthViewController {
 
     private final UsuarioService usuarioService;
     private final FileUploadUtil fileUploadUtil;
+    private final CategoriaService categoriaService;
 
     @Autowired
-    public AuthViewController(UsuarioService usuarioService , FileUploadUtil fileUploadUtil) {
+    public AuthViewController(UsuarioService usuarioService,CategoriaService categoriaService , FileUploadUtil fileUploadUtil) {
         this.usuarioService = usuarioService;
         this.fileUploadUtil = fileUploadUtil;
+        this.categoriaService = categoriaService;
     }
 
     @GetMapping("/login")
     public String login(Model model) {
         model.addAttribute("title", "Iniciar sesión - Segundito");
+        model.addAttribute("categorias", categoriaService.listarTodas());
         return "login";
     }
 

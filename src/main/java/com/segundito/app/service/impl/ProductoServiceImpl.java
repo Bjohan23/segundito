@@ -492,4 +492,19 @@ public class ProductoServiceImpl implements ProductoService {
         dto.setOrden(imagen.getOrden());
         return dto;
     }
+
+    @Override
+    public Page<ProductoResponseDTO> buscarPorTerminoYCategoria(String termino, Integer categoriaId, Pageable pageable) {
+        Page<Producto> productos = productoRepository.buscarPorCategoriaYTermino(categoriaId, termino, pageable);
+        return productos.map(this::convertirADTO);
+    }
+
+    @Override
+    public Page<ProductoResponseDTO> buscarPorCategoriaTerminoYPrecio(Integer categoriaId, String termino,
+                                                                      BigDecimal precioMin, BigDecimal precioMax,
+                                                                      Pageable pageable) {
+        Page<Producto> productos = productoRepository.buscarPorCategoriaTerminoYPrecio(
+                categoriaId, termino, precioMin, precioMax, pageable);
+        return productos.map(this::convertirADTO);
+    }
 }

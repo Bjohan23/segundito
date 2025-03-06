@@ -44,4 +44,21 @@ public interface ProductoRepository extends JpaRepository<Producto, Integer> {
 
     @Query("SELECT p FROM Producto p WHERE p.vendido = false ORDER BY p.fechaPublicacion DESC")
     Page<Producto> findRecientes(Pageable pageable);
+
+    @Query("SELECT p FROM Producto p WHERE p.categoria.id = :categoriaId AND p.vendido = false AND " +
+            "(p.titulo LIKE %:termino% OR p.descripcion LIKE %:termino%)")
+    Page<Producto> buscarPorCategoriaYTermino(@Param("categoriaId") Integer categoriaId,
+                                              @Param("termino") String termino,
+                                              Pageable pageable);
+
+    // Método para búsqueda combinada (categoría, término y rango de precio)
+    @Query("SELECT p FROM Producto p WHERE p.categoria.id = :categoriaId AND p.vendido = false AND " +
+            "(p.titulo LIKE %:termino% OR p.descripcion LIKE %:termino%) AND " +
+            "p.precio BETWEEN :precioMin AND :precioMax")
+    Page<Producto> buscarPorCategoriaTerminoYPrecio(@Param("categoriaId") Integer categoriaId,
+                                                    @Param("termino") String termino,
+                                                    @Param("precioMin") BigDecimal precioMin,
+                                                    @Param("precioMax") BigDecimal precioMax,
+                                                    Pageable pageable);
+
 }

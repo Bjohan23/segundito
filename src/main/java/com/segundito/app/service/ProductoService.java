@@ -37,6 +37,12 @@ public interface ProductoService {
 
     Page<ProductoResponseDTO> listarRecientes(Pageable pageable);
 
+    Page<ProductoResponseDTO> buscarPorTerminoYCategoria(String termino, Integer categoriaId, Pageable pageable);
+
+    Page<ProductoResponseDTO> buscarPorCategoriaTerminoYPrecio(Integer categoriaId, String termino,
+                                                               BigDecimal precioMin, BigDecimal precioMax,
+                                                               Pageable pageable);
+
     void marcarComoVendido(Integer id, Integer usuarioId);
 
     void destacarProducto(Integer id, Integer usuarioId, Boolean destacado);
