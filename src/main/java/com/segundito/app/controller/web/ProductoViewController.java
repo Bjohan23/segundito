@@ -169,5 +169,17 @@ public class ProductoViewController {
         throw new RuntimeException("Debes iniciar sesión para realizar esta acción");
     }
 
+    @GetMapping("/destacados")
+    public String productosDestacados(Model model) {
+        try {
+            List<ProductoResponseDTO> productosDestacados = productoService.listarDestacados(8); // Mostrar 8 productos destacados
+            model.addAttribute("productos", productosDestacados);
+            model.addAttribute("title", "Productos destacados - Segundito");
+            return "productos/destacados"; // Necesitarás crear esta plantilla
+        } catch (Exception e) {
+            model.addAttribute("error", "Error al cargar productos destacados: " + e.getMessage());
+            return "error/500";
+        }
+    }
 
 }

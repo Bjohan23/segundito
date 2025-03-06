@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="${usuario.nombre + ' - Perfil en Segundito'}">Perfil de Usuario - Segundito</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div class="flex flex-col md:flex-row md:items-center mb-6">
+            <div class="mr-4 mb-4 md:mb-0 flex justify-center">
+                <div class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                    <img th:if="${usuario.fotoPerfil != null}" th:src="@{'/uploads/' + ${usuario.fotoPerfil}}"
+                         th:alt="${usuario.nombre}" class="w-full h-full object-cover">
+                    <i th:unless="${usuario.fotoPerfil != null}" class="fas fa-user text-gray-400 text-3xl"></i>
+                </div>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800 mb-1 text-center md:text-left" th:text="${usuario.nombre}">Nombre del Usuario</h1>
+                <p class="text-gray-600 mb-2 text-center md:text-left">
+                    <i class="fas fa-user-clock mr-1"></i>
+                    <span>Miembro desde </span>
+                    <span th:text="${#temporals.format(usuario.fechaRegistro, 'dd/MM/yyyy')}">01/01/2023</span>
+                </p>
+
+                <!-- Calificación media si corresponde -->
+                <div class="flex items-center justify-center md:justify-start" th:if="${calificacionMedia != null}">
+                    <div class="flex">
+                        <span th:each="i : ${#numbers.sequence(1, 5)}"
+                              th:class="${i <= calificacionMedia ? 'text-yellow-400' : 'text-gray-300'}">
+                            <i class="fas fa-star"></i>
+                        </span>
+                    </div>
+                    <span class="ml-2 text-sm text-gray-600" th:text="${totalValoraciones + ' valoraciones'}">
+                        0 valoraciones
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${usuario.biografia != null && !usuario.biografia.isEmpty()}" class="mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-2">Acerca de mí</h2>
+            <p class="text-gray-700" th:text="${usuario.biografia}">Biografía del usuario...</p>
+        </div>
+
+        <!-- Botón de contacto -->
+        <div class="flex justify-center md:justify-start">
+            <a href="#" onclick="alert('Funcionalidad no implementada')" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg">
+                <i class="fas fa-envelope mr-2"></i> Contactar
+            </a>
+        </div>
+    </div>
+
+    <!-- Productos publicados por el usuario -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Productos publicados</h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div th:each="producto : ${productos}" class="product-card">
+                <div th:replace="~{fragments/product-card :: product-card(${producto})}"></div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(productos)}" class="text-center py-8">
+            <p class="text-gray-600">Este usuario aún no ha publicado productos.</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

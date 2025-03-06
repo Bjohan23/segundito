@@ -26,6 +26,44 @@
             border: 2px solid #0ea5e9;
         }
     </style>
+    <script>
+        // Definir funciones globalmente
+        window.openContactModal = function() {
+            document.getElementById('contactModal').classList.remove('hidden');
+        };
+
+        window.closeContactModal = function() {
+            document.getElementById('contactModal').classList.add('hidden');
+            if (document.getElementById('messageForm')) {
+                document.getElementById('messageForm').classList.add('hidden');
+            }
+        };
+
+        window.showMessageForm = function() {
+            document.getElementById('messageForm').classList.remove('hidden');
+        };
+
+        window.openShareModal = function() {
+            document.getElementById('shareModal').classList.remove('hidden');
+        };
+
+        window.closeShareModal = function() {
+            document.getElementById('shareModal').classList.add('hidden');
+        };
+
+        window.toggleFavorito = function(productoId) {
+            console.log('Toggle favorito:', productoId);
+        };
+
+        window.copyShareUrl = function() {
+            const shareUrl = document.getElementById('share-url');
+            if (shareUrl) {
+                shareUrl.select();
+                document.execCommand('copy');
+                alert('¡Enlace copiado al portapapeles!');
+            }
+        };
+    </script>
 </head>
 <body>
 <div layout:fragment="content">
@@ -164,22 +202,23 @@
                 <!-- Botones de acción -->
                 <div class="flex flex-wrap gap-3 mb-6">
                     <!-- No mostrar botón de contacto si el producto está vendido o es del propio usuario -->
+                    <!-- Botón de contacto -->
                     <button th:unless="${producto.vendido || #authentication.principal == producto.usuarioEmail}"
                             class="flex-1 bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-lg font-medium transition-all flex items-center justify-center"
-                            onclick="openContactModal()">
+                            th:attr="onclick='openContactModal()'">
                         <i class="fab fa-whatsapp mr-2"></i> Contactar
                     </button>
 
                     <!-- Botón de favorito -->
                     <button class="flex items-center justify-center bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 px-4 rounded-lg font-medium transition-all"
-                            th:onclick="'toggleFavorito(' + ${producto.id} + ')'">
+                            th:attr="onclick='toggleFavorito(' + ${producto.id} + ')'">
                         <i th:class="${producto.esFavorito != null && producto.esFavorito ? 'fas fa-heart text-red-500' : 'far fa-heart'} + ' mr-2'"></i>
                         <span th:text="${producto.esFavorito != null && producto.esFavorito ? 'Guardado' : 'Guardar'}">Guardar</span>
                     </button>
 
                     <!-- Botón de compartir -->
                     <button class="flex items-center justify-center bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 px-4 rounded-lg font-medium transition-all"
-                            onclick="openShareModal()">
+                            th:attr="onclick='openShareModal()'">
                         <i class="fas fa-share-alt mr-2"></i>
                         <span>Compartir</span>
                     </button>
@@ -241,7 +280,7 @@
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-semibold text-gray-800">Contactar con el vendedor</h3>
-                    <button onclick="closeContactModal()" class="text-gray-400 hover:text-gray-500">
+                    <button th:attr="onclick='closeContactModal()'" class="text-gray-400 hover:text-gray-500">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -276,14 +315,14 @@
 
                 <!-- Opciones de contacto -->
                 <div class="space-y-3">
-                    <a th:href="'https://wa.me/' + ${producto.usuarioTelefono} + '?text=Hola, estoy interesado en tu anuncio: ' + ${producto.titulo}"
+                    <a th:href="'https://wa.me/' + 51 +${producto.usuarioTelefono} + '?text=Hola, estoy interesado en tu anuncio: ' + ${producto.titulo}"
                        target="_blank" rel="noopener noreferrer"
                        class="w-full flex items-center justify-center bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg font-medium transition-all">
                         <i class="fab fa-whatsapp mr-2 text-xl"></i>
                         Contactar por WhatsApp
                     </a>
 
-                    <button sec:authorize="isAuthenticated()" onclick="showMessageForm()"
+                    <button sec:authorize="isAuthenticated()" th:attr="onclick='showMessageForm()'"
                             class="w-full flex items-center justify-center bg-primary-600 hover:bg-primary-700 text-white py-2 px-4 rounded-lg font-medium transition-all">
                         <i class="fas fa-envelope mr-2"></i>
                         Enviar mensaje interno
@@ -323,14 +362,15 @@
             <div class="p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-semibold text-gray-800">Compartir producto</h3>
-                    <button onclick="closeShareModal()" class="text-gray-400 hover:text-gray-500">
+                    <button type="button" onclick="closeShareModal()" class="text-gray-400 hover:text-gray-500">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
 
+                <!-- Versión simplificada de los botones de compartir -->
                 <div class="flex flex-wrap justify-center gap-4 mb-6">
-                    <a th:href="'https://www.facebook.com/sharer/sharer.php?u=' + ${#httpServletRequest.requestURL}"
-                       target="_blank" rel="noopener noreferrer"
+                    <!-- Facebook -->
+                    <a href="#" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank'); return false;"
                        class="flex flex-col items-center justify-center w-20 p-2 rounded-lg hover:bg-gray-100 transition-all">
                         <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mb-2">
                             <i class="fab fa-facebook-f text-xl"></i>
@@ -338,8 +378,8 @@
                         <span class="text-sm text-gray-700">Facebook</span>
                     </a>
 
-                    <a th:href="'https://twitter.com/intent/tweet?text=' + ${producto.titulo} + '&url=' + ${#httpServletRequest.requestURL}"
-                       target="_blank" rel="noopener noreferrer"
+                    <!-- Twitter -->
+                    <a href="#" onclick="window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href), '_blank'); return false;"
                        class="flex flex-col items-center justify-center w-20 p-2 rounded-lg hover:bg-gray-100 transition-all">
                         <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-400 mb-2">
                             <i class="fab fa-twitter text-xl"></i>
@@ -347,8 +387,8 @@
                         <span class="text-sm text-gray-700">Twitter</span>
                     </a>
 
-                    <a th:href="'https://wa.me/?text=' + ${producto.titulo} + ' - ' + ${#httpServletRequest.requestURL}"
-                       target="_blank" rel="noopener noreferrer"
+                    <!-- WhatsApp -->
+                    <a href="#" onclick="window.open('https://wa.me/?text=' + encodeURIComponent(window.location.href), '_blank'); return false;"
                        class="flex flex-col items-center justify-center w-20 p-2 rounded-lg hover:bg-gray-100 transition-all">
                         <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-500 mb-2">
                             <i class="fab fa-whatsapp text-xl"></i>
@@ -356,7 +396,8 @@
                         <span class="text-sm text-gray-700">WhatsApp</span>
                     </a>
 
-                    <a th:href="'mailto:?subject=' + ${producto.titulo} + '&body=Mira este producto: ' + ${#httpServletRequest.requestURL}"
+                    <!-- Email -->
+                    <a href="#" onclick="window.open('mailto:?body=' + encodeURIComponent(window.location.href), '_blank'); return false;"
                        class="flex flex-col items-center justify-center w-20 p-2 rounded-lg hover:bg-gray-100 transition-all">
                         <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-2">
                             <i class="fas fa-envelope text-xl"></i>
@@ -365,12 +406,13 @@
                     </a>
                 </div>
 
+                <!-- Enlace directo simplificado -->
                 <div>
                     <label for="share-url" class="block text-sm font-medium text-gray-700 mb-2">Enlace del producto</label>
                     <div class="flex">
-                        <input id="share-url" type="text" th:value="${#httpServletRequest.requestURL}" readonly
+                        <input id="share-url" type="text" value="" readonly
                                class="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg focus:outline-none">
-                        <button onclick="copyShareUrl()" class="bg-gray-100 px-3 border border-l-0 border-gray-300 rounded-r-lg hover:bg-gray-200">
+                        <button type="button" onclick="copyShareUrl()" class="bg-gray-100 px-3 border border-l-0 border-gray-300 rounded-r-lg hover:bg-gray-200">
                             <i class="far fa-copy"></i>
                         </button>
                     </div>
@@ -378,81 +420,17 @@
             </div>
         </div>
     </div>
-</div>
 
-<!-- Scripts específicos para esta página -->
-<script th:inline="javascript" layout:fragment="scripts">
-    // Variables para el carrusel
-    let currentSlide = 0;
-    const slidesCount = /*[[${producto.imagenes != null ? producto.imagenes.size() : 0}]]*/ 0;
-    const slider = document.querySelector('.slider');
-
-    // Función para mostrar un slide específico
-    function showSlide(index) {
-        if (slidesCount === 0) return;
-
-        // Validar el índice
-        if (index < 0) index = slidesCount - 1;
-        if (index >= slidesCount) index = 0;
-
-        currentSlide = index;
-
-        // Actualizar la posición del slider
-        slider.style.transform = `translateX(-${currentSlide * 100}%)`;
-
-        // Actualizar las miniaturas
-        document.querySelectorAll('.thumbnail').forEach((thumb, i) => {
-            if (i === currentSlide) {
-                thumb.classList.add('active');
-            } else {
-                thumb.classList.remove('active');
+    <script>
+        // Establecer el valor del enlace cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const shareUrlInput = document.getElementById('share-url');
+            if (shareUrlInput) {
+                shareUrlInput.value = window.location.href;
             }
         });
-    }
+    </script>
+</div>
 
-    // Funciones para navegar entre slides
-    function nextSlide() {
-        showSlide(currentSlide + 1);
-    }
-
-    function prevSlide() {
-        showSlide(currentSlide - 1);
-    }
-
-    // Función para alternar favorito
-    function toggleFavorito(productoId) {
-        // Aquí iría la lógica para añadir/quitar de favoritos mediante AJAX
-        console.log('Toggle favorito:', productoId);
-    }
-
-    // Funciones para los modales
-    function openContactModal() {
-        document.getElementById('contactModal').classList.remove('hidden');
-    }
-
-    function closeContactModal() {
-        document.getElementById('contactModal').classList.add('hidden');
-        document.getElementById('messageForm').classList.add('hidden');
-    }
-
-    function showMessageForm() {
-        document.getElementById('messageForm').classList.remove('hidden');
-    }
-
-    function openShareModal() {
-        document.getElementById('shareModal').classList.remove('hidden');
-    }
-
-    function closeShareModal() {
-        document.getElementById('shareModal').classList.add('hidden');
-    }
-
-    function copyShareUrl() {
-        const shareUrl = document.getElementById('share-url');
-        shareUrl.select();
-        document.execCommand('copy');
-        alert('¡Enlace copiado al portapapeles!');
-    }
-</script>
 </body>
 </html>
