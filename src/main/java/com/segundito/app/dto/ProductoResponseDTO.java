@@ -45,6 +45,15 @@ public class ProductoResponseDTO {
 
     private Double calificacionVendedor;
     private Long totalValoraciones;
+    private String usuarioFotoPerfil;
+
+    public String getUsuarioFotoPerfil() {
+        return usuarioFotoPerfil;
+    }
+
+    public void setUsuarioFotoPerfil(String usuarioFotoPerfil) {
+        this.usuarioFotoPerfil = usuarioFotoPerfil;
+    }
 
     public Boolean getEsFavorito() {
         return esFavorito;

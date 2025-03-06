@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @NoArgsConstructor
@@ -28,4 +29,16 @@ public class RegistroRequest {
     private String telefono;
 
     private String biografia;
+
+    // Nuevo campo para la foto de perfil
+    private MultipartFile fotoPerfil;
+
+    // Getters y setters necesarios
+    public MultipartFile getFotoPerfil() {
+        return fotoPerfil;
+    }
+
+    public void setFotoPerfil(MultipartFile fotoPerfil) {
+        this.fotoPerfil = fotoPerfil;
+    }
 }

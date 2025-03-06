@@ -415,6 +415,7 @@ public class ProductoServiceImpl implements ProductoService {
         dto.setDestacado(producto.getDestacado());
         dto.setVendido(producto.getVendido());
         dto.setVisitas(producto.getVisitas());
+        dto.setUsuarioFotoPerfil(producto.getUsuario().getFotoPerfil());
 
         // Añadir la propiedad esFavorito
         dto.setEsFavorito(false); // Por defecto, no es favorito
