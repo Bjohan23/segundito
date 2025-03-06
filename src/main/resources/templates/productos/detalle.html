@@ -110,25 +110,28 @@
             <div>
                 <!-- Slider principal -->
                 <div class="slider-container rounded-lg overflow-hidden bg-gray-100 mb-4 h-80 md:h-96">
-                    <div th:if="${producto.imagenes != null && !producto.imagenes.isEmpty()}">
-                        <div th:each="imagen, iStat : ${producto.imagenes}">
-                            <p th:text="${'Imagen ' + (iStat.index + 1) + ': ' + imagen.url}"></p>
+                    <div class="slider" th:if="${producto.imagenes != null && !producto.imagenes.isEmpty()}">
+                        <div th:each="imagen, iStat : ${producto.imagenes}" class="slide">
                             <img th:src="@{'/uploads/' + ${imagen.url}}"
-                                 th:alt="${'Imagen ' + (iStat.index + 1)}"
-                                 style="max-height: 200px; max-width: 100%;">
+                                 th:alt="${producto.titulo + ' - Imagen ' + (iStat.index + 1)}"
+                                 class="w-full h-full object-contain">
                         </div>
                     </div>
-                    <div th:if="${producto.imagenes == null || producto.imagenes.isEmpty()}">
-                        <p>No hay imágenes disponibles</p>
+
+                    <div th:if="${producto.imagenes == null || producto.imagenes.isEmpty()}" class="flex items-center justify-center h-full">
+                        <div class="text-gray-400 text-center">
+                            <i class="fas fa-image text-5xl mb-2"></i>
+                            <p>Sin imágenes</p>
+                        </div>
                     </div>
 
                     <!-- Controles del slider -->
-                    <button th:if="${producto.imagenes.size() > 1}"
+                    <button th:if="${producto.imagenes != null && producto.imagenes.size() > 1}"
                             class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow hover:bg-gray-100"
                             onclick="prevSlide()">
                         <i class="fas fa-chevron-left"></i>
                     </button>
-                    <button th:if="${producto.imagenes.size() > 1}"
+                    <button th:if="${producto.imagenes != null && producto.imagenes.size() > 1}"
                             class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow hover:bg-gray-100"
                             onclick="nextSlide()">
                         <i class="fas fa-chevron-right"></i>
@@ -428,6 +431,54 @@
             if (shareUrlInput) {
                 shareUrlInput.value = window.location.href;
             }
+            // Variables para el carrusel
+            let currentSlide = 0;
+            let slidesCount = 0;
+            let slider = null;
+
+// Función para mostrar un slide específico
+            function showSlide(index) {
+                if (slider === null) {
+                    slider = document.querySelector('.slider');
+                    if (!slider) return;
+                    slidesCount = slider.children.length;
+                }
+
+                if (slidesCount === 0) return;
+
+                // Validar el índice
+                if (index < 0) index = slidesCount - 1;
+                if (index >= slidesCount) index = 0;
+
+                currentSlide = index;
+
+                // Actualizar la posición del slider
+                slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+
+                // Actualizar las miniaturas
+                document.querySelectorAll('.thumbnail').forEach((thumb, i) => {
+                    if (i === currentSlide) {
+                        thumb.classList.add('active');
+                    } else {
+                        thumb.classList.remove('active');
+                    }
+                });
+            }
+
+// Funciones para navegar entre slides
+            function nextSlide() {
+                showSlide(currentSlide + 1);
+            }
+
+            function prevSlide() {
+                showSlide(currentSlide - 1);
+            }
+
+// Inicializar carrusel cuando se carga la página
+            document.addEventListener('DOMContentLoaded', function() {
+                showSlide(0);
+            });
+
         });
     </script>
 </div>

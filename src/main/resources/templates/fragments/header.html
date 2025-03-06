@@ -1,10 +1,10 @@
 <!-- fragments/header.html -->
-<header th:fragment="header" class="bg-white shadow-sm sticky top-0 z-50">
+<header th:fragment="header" class="bg-white shadow-sm sticky top-0 z-50 dark:bg-gray-800 dark:text-white">
     <div class="container mx-auto px-4">
         <div class="flex justify-between items-center py-4">
             <!-- Logo -->
             <a th:href="@{/}" class="flex items-center">
-                <span class="text-2xl font-bold text-primary-600">
+                <span class="text-2xl font-bold text-primary-600 dark:text-primary-400">
                     <i class="fas fa-recycle mr-2"></i>Segundito
                 </span>
             </a>
@@ -16,8 +16,8 @@
                             type="text"
                             name="termino"
                             placeholder="¿Qué estás buscando?"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-                    <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-600">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-600 dark:text-gray-300">
                         <i class="fas fa-search"></i>
                     </button>
                 </form>
@@ -27,14 +27,19 @@
             <div class="flex items-center space-x-2 md:space-x-4">
                 <!-- Botón de categorías -->
                 <div class="relative dropdown-trigger">
-                    <button onclick="toggleDropdown('categorias-dropdown')" class="flex items-center text-gray-600 hover:text-primary-600 focus:outline-none">
+                    <button onclick="toggleDropdown('categorias-dropdown')" class="flex items-center text-gray-600 hover:text-primary-600 focus:outline-none dark:text-gray-300">
                         <i class="fas fa-th-large mr-1"></i>
                         <span class="hidden md:inline">Categorías</span>
                         <i class="fas fa-chevron-down ml-1 text-xs"></i>
                     </button>
                     <!-- Dropdown de categorías -->
-                    <div id="categorias-dropdown" class="dropdown-content hidden absolute z-10 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                        <!-- Contenido del dropdown -->
+                    <div id="categorias-dropdown" class="dropdown-content hidden absolute z-10 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1 px-2 dark:bg-gray-700">
+                        <div class="py-1" th:each="categoria : ${categorias}">
+                            <a th:href="@{'/categorias/' + ${categoria.id}}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md dark:text-gray-200 dark:hover:bg-gray-600">
+                                <i th:class="${'fas ' + categoria.icono + ' mr-2'}" class="fas fa-tag mr-2"></i>
+                                <span th:text="${categoria.nombre}">Nombre de categoría</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -45,19 +50,51 @@
 
                 <!-- Usuario logueado -->
                 <div sec:authorize="isAuthenticated()" class="relative dropdown-trigger">
-                    <!-- Información del usuario y dropdown -->
+                    <button onclick="toggleDropdown('user-dropdown')" class="flex items-center text-gray-600 hover:text-primary-600 focus:outline-none dark:text-gray-300">
+                        <div class="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center mr-1 dark:bg-primary-900">
+                            <i class="fas fa-user text-primary-600 dark:text-primary-300"></i>
+                        </div>
+                        <span class="hidden md:inline mr-1" sec:authentication="name">Usuario</span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+
+                    <!-- Dropdown de usuario -->
+                    <div id="user-dropdown" class="dropdown-content hidden absolute right-0 z-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 dark:bg-gray-700">
+                        <div class="py-1">
+                            <a th:href="@{/perfil}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600">
+                                <i class="fas fa-user-circle mr-2"></i> Mi perfil
+                            </a>
+                            <a th:href="@{/mensajes}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600">
+                                <i class="fas fa-envelope mr-2"></i> Mensajes
+                            </a>
+                            <a th:href="@{/favoritos}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600">
+                                <i class="fas fa-heart mr-2"></i> Favoritos
+                            </a>
+                            <form th:action="@{/logout}" method="post" class="border-t border-gray-100 mt-1 dark:border-gray-600">
+                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Cerrar sesión
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Botones login/registro -->
                 <div sec:authorize="!isAuthenticated()" class="flex items-center">
-                    <a th:href="@{/login}" class="text-gray-600 hover:text-primary-600 mr-2 md:mr-4">
+                    <a th:href="@{/login}" class="text-gray-600 hover:text-primary-600 mr-2 md:mr-4 dark:text-gray-300">
                         <i class="fas fa-sign-in-alt mr-1"></i>
                         <span class="hidden md:inline">Iniciar sesión</span>
                     </a>
-                    <a th:href="@{/registro}" class="hidden md:block py-2 px-4 border border-primary-600 text-primary-600 rounded-lg hover:bg-primary-50 transition-all">
+                    <a th:href="@{/registro}" class="hidden md:block py-2 px-4 border border-primary-600 text-primary-600 rounded-lg hover:bg-primary-50 transition-all dark:text-primary-400 dark:border-primary-400 dark:hover:bg-gray-700">
                         Registrarse
                     </a>
                 </div>
+
+                <!-- Botón de modo oscuro -->
+                <button id="darkModeToggle" onclick="toggleDarkMode()" class="text-gray-600 hover:text-primary-600 dark:text-gray-300">
+                    <i class="fas fa-moon dark:hidden"></i>
+                    <i class="fas fa-sun hidden dark:block"></i>
+                </button>
             </div>
         </div>
 
@@ -68,11 +105,51 @@
                         type="text"
                         name="termino"
                         placeholder="¿Qué estás buscando?"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-600">
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-600 dark:text-gray-300">
                     <i class="fas fa-search"></i>
                 </button>
             </form>
         </div>
     </div>
 </header>
+
+<!-- Script para el modo oscuro -->
+<script>
+    // Función para manejar los dropdowns
+    function toggleDropdown(id) {
+        const dropdown = document.getElementById(id);
+        if (dropdown) {
+            dropdown.classList.toggle('hidden');
+        }
+    }
+
+    // Modo oscuro
+    document.addEventListener('DOMContentLoaded', function() {
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const htmlElement = document.documentElement;
+
+        // Verificar si ya hay una preferencia guardada
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+        // Aplicar modo oscuro si está guardado
+        if (isDarkMode) {
+            htmlElement.classList.add('dark');
+            darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+
+        // Toggle para cambiar entre modos
+        darkModeToggle.addEventListener('click', function() {
+            htmlElement.classList.toggle('dark');
+
+            // Guardar preferencia
+            const isDark = htmlElement.classList.contains('dark');
+            localStorage.setItem('darkMode', isDark);
+
+            // Cambiar icono
+            darkModeToggle.innerHTML = isDark ?
+                '<i class="fas fa-sun"></i>' :
+                '<i class="fas fa-moon"></i>';
+        });
+    });
+</script>

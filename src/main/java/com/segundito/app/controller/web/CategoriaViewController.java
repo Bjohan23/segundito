@@ -1,5 +1,6 @@
 package com.segundito.app.controller.web;
 
+import com.segundito.app.dto.CategoriaResponseDTO;
 import com.segundito.app.dto.ProductoResponseDTO;
 import com.segundito.app.service.CategoriaService;
 import com.segundito.app.service.ProductoService;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/categorias")
@@ -30,11 +33,12 @@ public class CategoriaViewController {
 
     @GetMapping
     public String listarCategorias(Model model) {
-        model.addAttribute("title", "Categorías - Segundito");
+        List<CategoriaResponseDTO> categoriasPrincipales = categoriaService.listarPrincipales();
+        model.addAttribute("categoriasPrincipales", categoriasPrincipales);
         model.addAttribute("categorias", categoriaService.listarTodas());
-        return "categoria/listar";
+        model.addAttribute("title", "Categorías - Segundito");
+        return "categorias/listar";
     }
-
     @GetMapping("/{id}")
     public String verCategoria(
             @PathVariable Integer id,
@@ -61,6 +65,7 @@ public class CategoriaViewController {
             model.addAttribute("totalPaginas", productosPage.getTotalPages());
             model.addAttribute("paginaActual", productosPage.getNumber());
             model.addAttribute("tamanoPagina", productosPage.getSize());
+            model.addAttribute("categorias", categoriaService.listarTodas());
 
             // Depuración
             System.out.println("Productos encontrados para categoría " + id + ": " + productosPage.getTotalElements());

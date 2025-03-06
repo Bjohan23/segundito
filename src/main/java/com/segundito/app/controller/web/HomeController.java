@@ -1,6 +1,9 @@
 package com.segundito.app.controller.web;
 
+import com.segundito.app.dto.CategoriaDTO;
+import com.segundito.app.dto.CategoriaResponseDTO;
 import com.segundito.app.dto.ProductoResponseDTO;
+import com.segundito.app.service.CategoriaService;
 import com.segundito.app.service.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -15,10 +18,12 @@ import java.util.List;
 public class HomeController {
 
     private final ProductoService productoService;
+    private final CategoriaService categoriaService;
 
     @Autowired
-    public HomeController(ProductoService productoService) {
+    public HomeController(ProductoService productoService ,CategoriaService categoriaService) {
         this.productoService = productoService;
+        this.categoriaService = categoriaService;
     }
 
     @GetMapping("/")
@@ -27,6 +32,7 @@ public class HomeController {
             // Cargar productos destacados (8 como máximo)
             List<ProductoResponseDTO> productosDestacados = productoService.listarDestacados(8);
             model.addAttribute("productos", productosDestacados);
+            model.addAttribute("categorias", categoriaService.listarTodas());
 
             // Cargar productos recientes (8 como máximo)
             Pageable pageable = PageRequest.of(0, 8);

@@ -17,10 +17,12 @@ import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import org.springframework.data.domain.Page;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/productos")
@@ -31,6 +33,7 @@ public class ProductoViewController {
     private final UbicacionService ubicacionService;
     private final ProductoService productoService;
     private final UsuarioService usuarioService;
+
 
     @Autowired
     public ProductoViewController(CategoriaService categoriaService,
@@ -67,22 +70,29 @@ public class ProductoViewController {
         try {
             ProductoResponseDTO producto = productoService.buscarPorId(id);
 
-            // Depuración
-            System.out.println("==================== DETALLE PRODUCTO ====================");
-            System.out.println("ID: " + producto.getId());
-            System.out.println("Título: " + producto.getTitulo());
-            System.out.println("Imágenes: " + (producto.getImagenes() != null ? producto.getImagenes().size() : "null"));
+            // Agregar productos relacionados (de la misma categoría)
+            List<ProductoResponseDTO> productosRelacionados = new ArrayList<>();
 
-            if (producto.getImagenes() != null && !producto.getImagenes().isEmpty()) {
-                for (ImagenDTO img : producto.getImagenes()) {
-                    System.out.println("  - ID: " + img.getId() + ", URL: " + img.getUrl() + ", Principal: " + img.getEsPrincipal());
-                }
+            try {
+                // Obtener 4 productos de la misma categoría (excluyendo el actual)
+                Page<ProductoResponseDTO> relacionadosPage = productoService.listarPorCategoria(
+                        producto.getCategoriaId(),
+                        PageRequest.of(0, 5)
+                );
+
+                // Filtrar para excluir el producto actual y limitar a 4
+                productosRelacionados = relacionadosPage.getContent().stream()
+                        .filter(p -> !p.getId().equals(producto.getId()))
+                        .limit(4)
+                        .collect(Collectors.toList());
+            } catch (Exception e) {
+                System.err.println("Error al cargar productos relacionados: " + e.getMessage());
+                // No es crítico, seguimos aunque falle esta parte
             }
 
-            System.out.println("Imagen Principal: " + producto.getImagenPrincipal());
-            System.out.println("==========================================================");
-
             model.addAttribute("producto", producto);
+            model.addAttribute("categorias", categoriaService.listarTodas());
+            model.addAttribute("productosRelacionados", productosRelacionados);
             model.addAttribute("title", producto.getTitulo() + " - Segundito");
 
             return "productos/detalle";
@@ -93,7 +103,6 @@ public class ProductoViewController {
             return "error/404";
         }
     }
-
 
     @PostMapping("/nuevo")
     public String guardarProducto(@Valid @ModelAttribute("productoDTO") ProductoDTO productoDTO,

@@ -21,9 +21,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Configuración mejorada de Tailwind -->
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -64,7 +64,68 @@
             }
         }
     </script>
+    <!-- Estilos para el modo oscuro -->
+    <style>
+        .dark {
+            color-scheme: dark;
+        }
 
+        .dark body {
+            background-color: #1f2937;
+            color: #e5e7eb;
+        }
+
+        .dark .bg-white,
+        .dark .bg-gray-50 {
+            background-color: #374151;
+        }
+
+        .dark .bg-gray-100 {
+            background-color: #4b5563;
+        }
+
+        .dark .shadow-sm,
+        .dark .shadow-md,
+        .dark .shadow-lg,
+        .dark .shadow-soft,
+        .dark .shadow-hover {
+            --tw-shadow-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .dark .text-gray-500 {
+            color: #9ca3af;
+        }
+
+        .dark .text-gray-600,
+        .dark .text-gray-700,
+        .dark .text-gray-800,
+        .dark .text-gray-900 {
+            color: #e5e7eb;
+        }
+
+        .dark .border-gray-300 {
+            border-color: #4b5563;
+        }
+
+        .dark .hover\:bg-gray-50:hover,
+        .dark .hover\:bg-gray-100:hover {
+            background-color: #6b7280;
+        }
+
+        .dark .card {
+            background-color: #374151;
+        }
+
+        .dark .btn-secondary {
+            background-color: #374151;
+            color: #e5e7eb;
+            border-color: #6b7280;
+        }
+
+        .dark .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+    </style>
     <!-- Estilos adicionales y personalizados -->
     <style>
         @layer utilities {
@@ -153,5 +214,38 @@
 
 <!-- Fragmentos de scripts -->
 <th:block layout:fragment="scripts"></th:block>
+<!-- Script para el modo oscuro -->
+<script>
+    // Función para manejar el modo oscuro
+    document.addEventListener('DOMContentLoaded', function() {
+        // Verificar si ya hay una preferencia guardada
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+        // Aplicar modo oscuro si está guardado
+        if (isDarkMode) {
+            document.documentElement.classList.add('dark');
+        }
+    });
+
+    // Función para cambiar el modo oscuro (será llamada desde el header)
+    function toggleDarkMode() {
+        const htmlElement = document.documentElement;
+        htmlElement.classList.toggle('dark');
+
+        // Guardar preferencia
+        const isDark = htmlElement.classList.contains('dark');
+        localStorage.setItem('darkMode', isDark);
+
+        // Actualizar el icono si existe
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (darkModeToggle) {
+            darkModeToggle.innerHTML = isDark ?
+                '<i class="fas fa-sun"></i>' :
+                '<i class="fas fa-moon"></i>';
+        }
+
+        return isDark;
+    }
+</script>
 </body>
 </html>

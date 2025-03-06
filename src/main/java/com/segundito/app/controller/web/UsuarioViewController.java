@@ -2,6 +2,7 @@ package com.segundito.app.controller.web;
 
 import com.segundito.app.dto.ProductoResponseDTO;
 import com.segundito.app.entity.Usuario;
+import com.segundito.app.service.CategoriaService;
 import com.segundito.app.service.ProductoService;
 import com.segundito.app.service.UsuarioService;
 import com.segundito.app.service.ValoracionService;
@@ -22,14 +23,17 @@ public class UsuarioViewController {
     private final UsuarioService usuarioService;
     private final ProductoService productoService;
     private final ValoracionService valoracionService;
+    private final CategoriaService categoriaService;
 
     @Autowired
     public UsuarioViewController(UsuarioService usuarioService,
                                  ProductoService productoService,
-                                 ValoracionService valoracionService) {
+                                 ValoracionService valoracionService,
+                                 CategoriaService categoriaService) {
         this.usuarioService = usuarioService;
         this.productoService = productoService;
         this.valoracionService = valoracionService;
+        this.categoriaService = categoriaService;
     }
 
     @GetMapping("/{id}")
@@ -43,6 +47,7 @@ public class UsuarioViewController {
             Pageable pageable = PageRequest.of(0, 8);
             Page<ProductoResponseDTO> productosUsuario = productoService.listarPorUsuario(id, pageable);
             model.addAttribute("productos", productosUsuario.getContent());
+            model.addAttribute("categorias", categoriaService.listarTodas());
 
             // Obtener calificación media y total de valoraciones
             Double calificacionMedia = valoracionService.obtenerCalificacionPromedio(id);

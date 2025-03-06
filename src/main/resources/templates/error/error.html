@@ -3,52 +3,38 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
-    <title th:text="${statusCode} ? 'Error ' + ${statusCode} : 'Error' + ' - Segundito'">Error - Segundito</title>
+    <title>Error - Segundito</title>
 </head>
 <body>
-<div layout:fragment="content" class="flex items-center justify-center min-h-[60vh]">
-    <div class="text-center max-w-lg">
-        <!-- Icono de error -->
-        <div class="mb-6 text-red-500">
-            <!-- Icono para 404 -->
-            <div th:if="${statusCode == 404}" class="mx-auto w-24 h-24 flex items-center justify-center bg-red-100 rounded-full">
-                <i class="fas fa-search text-5xl"></i>
-            </div>
-            <!-- Icono para 403 -->
-            <div th:if="${statusCode == 403}" class="mx-auto w-24 h-24 flex items-center justify-center bg-red-100 rounded-full">
-                <i class="fas fa-lock text-5xl"></i>
-            </div>
-            <!-- Icono para 500 u otros errores -->
-            <div th:if="${statusCode != 404 && statusCode != 403}" class="mx-auto w-24 h-24 flex items-center justify-center bg-red-100 rounded-full">
-                <i class="fas fa-exclamation-triangle text-5xl"></i>
-            </div>
+<div layout:fragment="content">
+    <div class="flex flex-col items-center justify-center py-12">
+        <div class="text-center mb-8">
+            <i class="fas fa-exclamation-circle text-red-500 text-6xl mb-4"></i>
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">¡Ups! Algo salió mal</h1>
+            <p class="text-gray-600 dark:text-gray-300">
+                Lo sentimos, ha ocurrido un error al procesar tu solicitud.
+            </p>
         </div>
 
-        <!-- Título del error -->
-        <h1 class="text-3xl font-bold text-gray-800 mb-2" th:text="${statusCode} ? 'Error ' + ${statusCode} : 'Error'">Error</h1>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 w-full max-w-lg">
+            <div th:if="${status}" class="mb-4">
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-2">Detalles del error</h2>
+                <p class="text-gray-700 dark:text-gray-300">
+                    <span class="font-medium">Estado:</span> <span th:text="${status}">500</span>
+                </p>
+                <p th:if="${error}" class="text-gray-700 dark:text-gray-300">
+                    <span class="font-medium">Error:</span> <span th:text="${error}">Error interno del servidor</span>
+                </p>
+                <p th:if="${message}" class="text-gray-700 dark:text-gray-300">
+                    <span class="font-medium">Mensaje:</span> <span th:text="${message}">Mensaje de error</span>
+                </p>
+            </div>
 
-        <!-- Mensaje de error específico -->
-        <div th:if="${statusCode == 404}">
-            <p class="text-gray-600 mb-6">La página que estás buscando no existe o ha sido movida.</p>
-        </div>
-        <div th:if="${statusCode == 403}">
-            <p class="text-gray-600 mb-6">No tienes permiso para acceder a esta página.</p>
-        </div>
-        <div th:if="${statusCode == 500}">
-            <p class="text-gray-600 mb-6">Ha ocurrido un error interno en el servidor.</p>
-        </div>
-        <div th:if="${statusCode != 404 && statusCode != 403 && statusCode != 500}">
-            <p class="text-gray-600 mb-6" th:text="${errorMessage ?: 'Ha ocurrido un error inesperado.'}">Ha ocurrido un error inesperado.</p>
-        </div>
-
-        <!-- Botones de acción -->
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="/" class="bg-primary-600 hover:bg-primary-700 text-white py-2 px-6 rounded-lg font-medium transition-all">
-                <i class="fas fa-home mr-2"></i> Ir al inicio
-            </a>
-            <button onclick="window.history.back()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-2 px-6 rounded-lg font-medium transition-all">
-                <i class="fas fa-arrow-left mr-2"></i> Volver atrás
-            </button>
+            <div class="flex justify-center">
+                <a href="/" class="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-all">
+                    <i class="fas fa-home mr-2"></i> Volver al inicio
+                </a>
+            </div>
         </div>
     </div>
 </div>
