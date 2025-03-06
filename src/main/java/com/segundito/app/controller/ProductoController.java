@@ -1,5 +1,6 @@
 package com.segundito.app.controller;
 
+import com.segundito.app.dto.ImagenDTO;
 import com.segundito.app.dto.ProductoDTO;
 import com.segundito.app.dto.ProductoResponseDTO;
 import com.segundito.app.service.ProductoService;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

@@ -1,6 +1,7 @@
 package com.segundito.app.config;
 
 import com.segundito.app.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,28 +38,66 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        // URLs públicas
+                        // URLs públicas para APIs
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/categorias/**").permitAll()
-                        .requestMatchers("/api/productos/publicos/**").permitAll()
+                        .requestMatchers("/api/productos/**").permitAll() // Permitir todas las rutas de productos
                         .requestMatchers("/api/estados-producto/**").permitAll()
-                        .requestMatchers("/api/ubicaciones/publicas/**").permitAll()
+                        .requestMatchers("/api/ubicaciones/**").permitAll() // Permitir todas las rutas de ubicaciones
+                        .requestMatchers("/api/mensajes/**").permitAll() // Posiblemente necesario para mensajes
+
+                        // Rutas públicas de vistas
                         .requestMatchers("/").permitAll()
-                        .requestMatchers("/index", "/login", "/registro").permitAll()
-                        // Vistas web
+                        .requestMatchers("/index", "/login", "/registro", "/registro/**").permitAll()
                         .requestMatchers("/productos/**").permitAll()
                         .requestMatchers("/categorias/**").permitAll()
-                        .requestMatchers("/usuario/**").permitAll()
+                        .requestMatchers("/usuarios/**").permitAll() // Cambiado de usuario a usuarios
+                        .requestMatchers("/error/**").permitAll() // Rutas de error
+
+                        // Test routes (para pruebas)
+                        .requestMatchers("/test-*/**").permitAll()
+                        .requestMatchers("/prueba-*/**").permitAll()
+
                         // Recursos estáticos
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**", "/favicon.ico").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/static/**").permitAll()
+
                         // Resto de URLs requieren autenticación
-                        .anyRequest().permitAll() // Cambia a authenticated cuando esté listo
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/", true)
+                        .failureUrl("/login?error=true")
+                        .usernameParameter("email")
+                        .passwordParameter("password")
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout=true")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll()
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                // Añadir manejo de excepciones
+                .exceptionHandling(exceptions -> exceptions
+                        .accessDeniedPage("/error/403")
+                        .authenticationEntryPoint((request, response, exception) -> {
+                            // Para solicitudes AJAX, devolver 401
+                            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No autorizado");
+                            } else {
+                                // Redirigir a login para solicitudes normales
+                                response.sendRedirect(request.getContextPath() + "/login");
+                            }
+                        })
+                );
 
         return http.build();
     }

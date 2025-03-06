@@ -8,11 +8,14 @@ import com.segundito.app.exception.BadRequestException;
 import com.segundito.app.exception.ResourceNotFoundException;
 import com.segundito.app.repository.*;
 import com.segundito.app.service.ProductoService;
+import com.segundito.app.service.UsuarioService;
 import com.segundito.app.util.FileUploadUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,6 +36,7 @@ public class ProductoServiceImpl implements ProductoService {
     private final ImagenRepository imagenRepository;
     private final ValoracionRepository valoracionRepository;
     private final FileUploadUtil fileUploadUtil;
+    private  final FavoritoRepository favoritoRepository;
 
     @Autowired
     public ProductoServiceImpl(ProductoRepository productoRepository,
@@ -42,7 +46,9 @@ public class ProductoServiceImpl implements ProductoService {
                                UbicacionRepository ubicacionRepository,
                                ImagenRepository imagenRepository,
                                ValoracionRepository valoracionRepository,
-                               FileUploadUtil fileUploadUtil) {
+                               FileUploadUtil fileUploadUtil,
+                               FavoritoRepository  favoritoRepository
+                                                            ) {
         this.productoRepository = productoRepository;
         this.usuarioRepository = usuarioRepository;
         this.categoriaRepository = categoriaRepository;
@@ -51,6 +57,7 @@ public class ProductoServiceImpl implements ProductoService {
         this.imagenRepository = imagenRepository;
         this.valoracionRepository = valoracionRepository;
         this.fileUploadUtil = fileUploadUtil;
+        this.favoritoRepository = favoritoRepository;
     }
 
     @Override
@@ -409,19 +416,64 @@ public class ProductoServiceImpl implements ProductoService {
         dto.setVendido(producto.getVendido());
         dto.setVisitas(producto.getVisitas());
 
-        // Imágenes
+        // Añadir la propiedad esFavorito
+        dto.setEsFavorito(false); // Por defecto, no es favorito
+
+        // Si tienes implementación de favoritos, puedes usar algo como esto:
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() &&
+                !"anonymousUser".equals(authentication.getName())) {
+            try {
+                String userEmail = authentication.getName();
+                Usuario usuario = usuarioRepository.findByEmail(userEmail).orElse(null);
+                if (usuario != null) {
+                    boolean esFav = favoritoRepository.existsByUsuarioIdAndProductoId(usuario.getId(), producto.getId());
+                    dto.setEsFavorito(esFav);
+                }
+            } catch (Exception e) {
+                System.err.println("Error al verificar favorito: " + e.getMessage());
+            }
+        }
+
+        // Imágenes: asegúrate de que las URLs sean absolutas
         List<Imagen> imagenes = imagenRepository.findByProductoIdOrderByOrdenAsc(producto.getId());
-        List<ImagenDTO> imagenesDTO = imagenes.stream()
-                .map(this::convertirImagenADTO)
-                .collect(Collectors.toList());
+        List<ImagenDTO> imagenesDTO = new ArrayList<>();
+
+        if (imagenes != null) {
+            for (Imagen imagen : imagenes) {
+                ImagenDTO imagenDTO = new ImagenDTO();
+                imagenDTO.setId(imagen.getId());
+
+                // Asegurarse de que la URL es correcta
+                String url = imagen.getUrl();
+                // No añadir "uploads/" si ya está incluido
+                if (url != null && !url.startsWith("/")) {
+                    url = url.replace("\\", "/"); // Normalizar separadores de Windows
+                }
+
+                imagenDTO.setUrl(url);
+                imagenDTO.setEsPrincipal(imagen.getEsPrincipal());
+                imagenDTO.setOrden(imagen.getOrden());
+                imagenesDTO.add(imagenDTO);
+            }
+        }
+
         dto.setImagenes(imagenesDTO);
 
-        // Imagen principal
+        // Imagen principal: mismo proceso de normalización
         Optional<Imagen> imagenPrincipal = imagenes.stream()
                 .filter(Imagen::getEsPrincipal)
                 .findFirst();
 
-        dto.setImagenPrincipal(imagenPrincipal.map(Imagen::getUrl).orElse(null));
+        if (imagenPrincipal.isPresent()) {
+            String url = imagenPrincipal.get().getUrl();
+            if (url != null && !url.startsWith("/")) {
+                url = url.replace("\\", "/");
+            }
+            dto.setImagenPrincipal(url);
+        } else {
+            dto.setImagenPrincipal(null);
+        }
 
         // Calificación del vendedor
         dto.setCalificacionVendedor(valoracionRepository.getCalificacionPromedio(producto.getUsuario().getId()));

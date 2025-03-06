@@ -78,7 +78,7 @@
                             Título del producto
                         </h3>
                         <div class="flex items-center text-sm">
-                            <span class="text-primary-600 font-semibold" th:text="${#numbers.formatDecimal(producto.precio, 0, 'POINT', 2, 'COMMA') + ' €'}">0,00 €</span>
+                            <span class="font-bold text-lg text-gray-900" th:text="${'S/ ' + #numbers.formatDecimal(producto.precio, 0, 'POINT', 2, 'COMMA')}">S/ 0,00</span>
                             <span class="mx-2">•</span>
                             <span class="text-gray-600" th:text="${producto.estadoNombre}">Estado</span>
                         </div>

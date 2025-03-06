@@ -35,6 +35,7 @@ public class ProductoResponseDTO {
     private String ubicacionProvincia;
     private String ubicacionCiudad;
 
+    private Boolean esFavorito = false;
     private Boolean destacado;
     private Boolean vendido;
     private Integer visitas;
@@ -44,4 +45,12 @@ public class ProductoResponseDTO {
 
     private Double calificacionVendedor;
     private Long totalValoraciones;
+
+    public Boolean getEsFavorito() {
+        return esFavorito;
+    }
+
+    public void setEsFavorito(Boolean esFavorito) {
+        this.esFavorito = esFavorito;
+    }
 }

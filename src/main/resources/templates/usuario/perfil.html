@@ -185,81 +185,32 @@
                 </div>
 
                 <!-- Lista de productos -->
-                <div th:if="${not #lists.isEmpty(productos)}" class="divide-y">
-                    <div th:each="producto : ${productos}" class="py-4 flex flex-col md:flex-row">
-                        <!-- Imagen -->
-                        <div class="flex-shrink-0 w-full md:w-40 h-28 mb-3 md:mb-0 md:mr-4">
-                            <a th:href="@{'/productos/' + ${producto.id}}">
-                                <img th:if="${producto.imagenPrincipal}" th:src="@{'/uploads/' + ${producto.imagenPrincipal}}"
-                                     class="w-full h-full object-cover rounded" th:alt="${producto.titulo}">
-                                <div th:unless="${producto.imagenPrincipal}" class="w-full h-full flex items-center justify-center bg-gray-200 rounded">
-                                    <i class="fas fa-image text-2xl text-gray-400"></i>
+                <div th:if="${productos != null && !productos.isEmpty()}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
+                    <div th:each="producto : ${productos}" class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all">
+                        <!-- Producto card -->
+                        <a th:href="@{'/productos/detalle/' + ${producto.id}}">
+                            <div class="h-48 bg-gray-200 overflow-hidden">
+                                <img th:if="${producto.imagenPrincipal}"
+                                     th:src="@{'/uploads/' + ${producto.imagenPrincipal}}"
+                                     class="w-full h-full object-cover"
+                                     th:alt="${producto.titulo}">
+                                <div th:unless="${producto.imagenPrincipal}" class="w-full h-full flex items-center justify-center">
+                                    <i class="fas fa-image text-4xl text-gray-400"></i>
                                 </div>
-                            </a>
-                        </div>
-
-                        <!-- Datos del producto -->
-                        <div class="flex-grow">
-                            <div class="flex flex-wrap items-start justify-between mb-1">
-                                <h3 class="font-semibold text-gray-800">
-                                    <a th:href="@{'/productos/' + ${producto.id}}" th:text="${producto.titulo}" class="hover:text-primary-600">
-                                        Título del producto
-                                    </a>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold text-gray-800 mb-1 line-clamp-2" th:text="${producto.titulo}">
+                                    Título del producto
                                 </h3>
-                                <span class="font-semibold text-gray-900" th:text="${#numbers.formatDecimal(producto.precio, 0, 'POINT', 2, 'COMMA') + ' €'}">
-                                        0,00 €
-                                    </span>
-                            </div>
-
-                            <!-- Etiquetas de estado -->
-                            <div class="flex flex-wrap gap-2 mb-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800" th:text="${producto.estadoNombre}">
-                                        Estado
-                                    </span>
-                                <span th:if="${producto.destacado}" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                        <i class="fas fa-star mr-1"></i> Destacado
-                                    </span>
-                                <span th:if="${producto.vendido}" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                        <i class="fas fa-check-circle mr-1"></i> Vendido
-                                    </span>
-                            </div>
-
-                            <div class="flex flex-wrap justify-between items-center">
-                                <div class="text-xs text-gray-500">
-                                    <i class="far fa-calendar-alt mr-1"></i>
-                                    <span th:text="${#temporals.format(producto.fechaPublicacion, 'dd/MM/yyyy')}">01/01/2025</span>
-                                    <span class="mx-2">•</span>
-                                    <i class="far fa-eye mr-1"></i>
-                                    <span th:text="${producto.visitas}">0</span> visitas
-                                </div>
-
-                                <!-- Botones de acción -->
-                                <div class="flex space-x-2 mt-2 md:mt-0">
-                                    <a th:href="@{'/productos/editar/' + ${producto.id}}" class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700">
-                                        <i class="fas fa-edit"></i> Editar
-                                    </a>
-                                    <button th:unless="${producto.vendido}"
-                                            th:onclick="'marcarVendido(' + ${producto.id} + ')'"
-                                            class="text-xs px-2 py-1 bg-green-100 hover:bg-green-200 rounded text-green-700">
-                                        <i class="fas fa-check"></i> Vendido
-                                    </button>
-                                    <button th:if="${producto.destacado}"
-                                            th:onclick="'quitarDestacado(' + ${producto.id} + ')'"
-                                            class="text-xs px-2 py-1 bg-yellow-100 hover:bg-yellow-200 rounded text-yellow-700">
-                                        <i class="fas fa-star"></i> Quitar destacado
-                                    </button>
-                                    <button th:unless="${producto.destacado}"
-                                            th:onclick="'destacarProducto(' + ${producto.id} + ')'"
-                                            class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700">
-                                        <i class="far fa-star"></i> Destacar
-                                    </button>
-                                    <button th:onclick="'eliminarProducto(' + ${producto.id} + ')'"
-                                            class="text-xs px-2 py-1 bg-red-100 hover:bg-red-200 rounded text-red-700">
-                                        <i class="fas fa-trash"></i> Eliminar
-                                    </button>
+                                <p class="font-bold text-lg text-gray-900 mb-2" th:text="${#numbers.formatDecimal(producto.precio, 0, 'POINT', 2, 'COMMA') + ' S/'}">
+                                    0,00 S/
+                                </p>
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                    <span th:text="${producto.ubicacionCiudad}">Ciudad</span>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 </div>
 
@@ -301,8 +252,8 @@
                                     Título del producto
                                 </a>
                             </h3>
-                            <div class="text-primary-600 font-semibold mb-1" th:text="${#numbers.formatDecimal(favorito.producto.precio, 0, 'POINT', 2, 'COMMA') + ' €'}">
-                                0,00 €
+                            <div class="text-primary-600 font-semibold mb-1" th:text="${#numbers.formatDecimal(favorito.producto.precio, 0, 'POINT', 2, 'COMMA') + ' S/'}">
+                                0,00 S/
                             </div>
                             <div class="text-xs text-gray-500">
                                 <span th:text="${favorito.producto.ubicacionCiudad}">Ciudad</span>
