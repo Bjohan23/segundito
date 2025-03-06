@@ -6,6 +6,7 @@ import com.segundito.app.entity.Usuario;
 import com.segundito.app.service.CategoriaService;
 import com.segundito.app.service.ProductoService;
 import com.segundito.app.service.UsuarioService;
+import com.segundito.app.util.FileUploadUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Controller
@@ -27,14 +29,17 @@ public class PerfilController {
     private final UsuarioService usuarioService;
     private final ProductoService productoService;
     private final CategoriaService categoriaService;
+    private final FileUploadUtil fileUploadUtil ;
 
     @Autowired
     public PerfilController(UsuarioService usuarioService,
                             ProductoService productoService,
-                            CategoriaService categoriaService) {
+                            CategoriaService categoriaService,
+                            FileUploadUtil fileUploadUtil) {
         this.usuarioService = usuarioService;
         this.productoService = productoService;
         this.categoriaService = categoriaService;
+        this.fileUploadUtil = fileUploadUtil;
     }
 
     @GetMapping("/perfil")
@@ -114,10 +119,12 @@ public class PerfilController {
                 // Actualizar usuario
                 usuarioService.actualizar(usuario.getId(), usuarioDTO);
 
-                // Actualizar foto de perfil si se proporciona
+                // Actualizar foto de perfil si se proporciona usando FileUploadUtil
                 if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
-                    String ruta = guardarImagen(fotoPerfil, "perfiles", usuario.getId().toString());
-                    usuarioService.actualizarFotoPerfil(usuario.getId(), ruta);
+                    String fileName = UUID.randomUUID().toString() + "_" + fotoPerfil.getOriginalFilename();
+                    // Usar "usuarios" como carpeta para mantener consistencia con el registro
+                    String rutaFotoPerfil = fileUploadUtil.saveFile("usuarios", fileName, fotoPerfil);
+                    usuarioService.actualizarFotoPerfil(usuario.getId(), rutaFotoPerfil);
                 }
 
                 redirectAttributes.addFlashAttribute("alertSuccess", "Perfil actualizado correctamente");
